@@ -13,11 +13,13 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Azure.Identity" Version="1.13.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CommonUtilities\CommonUtilities.csproj" />
+    <ProjectReference Include="..\AgentConfiguration\AgentConfiguration.csproj" />
   </ItemGroup>
 
   <ItemGroup>

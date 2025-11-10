@@ -1,40 +1,41 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Azure.Identity;
 using Azure.AI.OpenAI;
-using OpenAI;
 using OpenAI.Chat;
+using OpenAI;
 using Microsoft.Agents.AI;
+using AgentConfiguration;
+using AgentConfig = AgentConfiguration.AgentConfiguration;
 using static CommonUtilities.ColoredConsole;
 
-IConfiguration configuration = new ConfigurationBuilder()
+// Build configuration
+var rootConfiguration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables()
     .Build();
 
-var agentConfig = configuration.GetSection("AgentConfiguration");
+// Set up dependency injection
+var services = new ServiceCollection();
+services.AddAgentConfiguration(rootConfiguration);
+var serviceProvider = services.BuildServiceProvider();
 
-string deploymentVarName = agentConfig["DeploymentName"] 
-    ?? throw new ArgumentNullException(nameof(deploymentVarName), "DeploymentName is not set in configuration");
+// Get agent configuration from DI
+var agentConfig = serviceProvider.GetRequiredService<AgentConfig>();
 
-string endpointVarName = agentConfig["Endpoint"] 
-    ?? throw new ArgumentNullException(nameof(endpointVarName), "Endpoint is not set in configuration");
+// Initialize Azure OpenAI client
+var credential = new DefaultAzureCredential(
+    new DefaultAzureCredentialOptions { ExcludeAzureDeveloperCliCredential = false });
+var openAIClient = new AzureOpenAIClient(agentConfig.GetEndpointUri(), credential);
+var chatClient = openAIClient.GetChatClient(agentConfig.GetDeploymentName());
 
-string deploymentName = Environment.GetEnvironmentVariable(deploymentVarName)
-    ?? throw new ArgumentNullException(nameof(deploymentName), $"{deploymentVarName} environment variable is not set");
-
-string endpoint = Environment.GetEnvironmentVariable(endpointVarName)
-    ?? throw new ArgumentNullException(nameof(endpoint), $"{endpointVarName} environment variable is not set");
-
-var authOptions = new DefaultAzureCredentialOptions { ExcludeAzureDeveloperCliCredential = false };
-
-DefaultAzureCredential credential = new DefaultAzureCredential(authOptions);
-AzureOpenAIClient openAIClient = new AzureOpenAIClient(new Uri(endpoint), credential);
-OpenAI.Chat.ChatClient chatClient = openAIClient.GetChatClient(deploymentName);
-AIAgent agent = chatClient.CreateAIAgent(new ChatClientAgentOptions()
+// Get agent settings and create agent
+var geographyAgentSettings = agentConfig.GetAgent("GeographyAgent");
+var agent = chatClient.CreateAIAgent(new ChatClientAgentOptions
 {
-    Name = "GeographyAgent",
-    Instructions = "You are good at geography and you are a helpful assistant."
+    Name = geographyAgentSettings.Name,
+    Instructions = geographyAgentSettings.Instructions
 });
 
 WriteSystemLine("Ask me a geography question (or press 'x' to exit):");
