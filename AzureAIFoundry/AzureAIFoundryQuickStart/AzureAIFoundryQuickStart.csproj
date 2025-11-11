@@ -7,13 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.17.0" />
-    <PackageReference Include="Microsoft.Agents.AI.AzureAI" Version="1.0.0-preview.251104.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0-rc.2.25502.107" />
   </ItemGroup>
-
+clear
   <ItemGroup>
     <ProjectReference Include="..\..\AgentConfiguration\AgentConfiguration.csproj" />
+    <ProjectReference Include="..\AzureAIFoundryShared\AzureAIFoundryShared.csproj" />
   </ItemGroup>
 
 </Project>

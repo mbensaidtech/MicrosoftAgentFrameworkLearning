@@ -1,0 +1,209 @@
+{
+	"info": {
+		"_postman_id": "azure-ai-foundry-quickstart",
+		"name": "Azure AI Foundry QuickStart",
+		"description": "Postman collection for testing Azure AI Foundry QuickStart API. This collection includes endpoints for sending messages to AI agents with support for conversation continuity using threadId and agentId.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Agent",
+			"item": [
+				{
+					"name": "Send Message (New Conversation)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"What is the capital of France?\",\n  \"context\": null\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/agent/message",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"agent",
+								"message"
+							]
+						},
+						"description": "Send a message to the Global agent and start a new conversation. A new agent will be created and used for this conversation. The agent will be deleted after the response is sent."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"message\": \"What is the capital of France?\",\n  \"context\": null\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/agent/message",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"agent",
+										"message"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"response\": \"The capital of France is Paris.\",\n  \"threadId\": \"thread_abc123\",\n  \"agentId\": \"agent_xyz789\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Send Message (With Thread)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"What is the population of that city?\",\n  \"context\": {\n    \"threadId\": \"thread_abc123\",\n    \"agentId\": null\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/agent/message",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"agent",
+								"message"
+							]
+						},
+						"description": "Send a message to continue an existing conversation using a threadId. The thread will be retrieved and used to maintain conversation context. A new agent will be created for this request."
+					},
+					"response": []
+				},
+				{
+					"name": "Send Message (With Agent and Thread)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"Tell me more about that city\",\n  \"context\": {\n    \"threadId\": \"thread_abc123\",\n    \"agentId\": \"agent_xyz789\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/agent/message",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"agent",
+								"message"
+							]
+						},
+						"description": "Send a message using both an existing agent and thread. The existing agent will be retrieved and reused, and the thread will be used to maintain conversation context. The agent will NOT be deleted after the response."
+					},
+					"response": []
+				},
+				{
+					"name": "Send Message (With Agent Only)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"What is the capital of Germany?\",\n  \"context\": {\n    \"threadId\": null,\n    \"agentId\": \"agent_xyz789\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/agent/message",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"agent",
+								"message"
+							]
+						},
+						"description": "Send a message using an existing agent but start a new conversation thread. The existing agent will be retrieved and reused. The agent will NOT be deleted after the response."
+					},
+					"response": []
+				}
+			],
+			"description": "Agent conversation endpoints. Use these endpoints to send messages to AI agents with support for conversation continuity."
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5297",
+			"type": "string",
+			"description": "Base URL for the API. Default is http://localhost:5297"
+		}
+	]
+}
+

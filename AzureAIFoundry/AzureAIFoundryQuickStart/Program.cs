@@ -1,59 +1,27 @@
 using AgentConfiguration;
 using AgentConfig = AgentConfiguration.AgentConfiguration;
+using AzureAIFoundryShared;
+using AzureAIFoundryQuickStart.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddControllers();
 
 // Add agent configuration from appsettings.json
 builder.Services.AddAgentConfiguration(builder.Configuration);
 
+// Register agent administration service
+builder.Services.AddScoped<IAgentAdministration, AgentAdministration>();
+
+// Register agent conversation service
+builder.Services.AddScoped<IAgentConversationService, AgentConversationService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
-// Example endpoint demonstrating how to use AgentConfiguration from DI
-app.MapGet("/agents", (AgentConfig agentConfig) =>
-{
-    return new
-    {
-        DeploymentName = agentConfig.DeploymentName,
-        Endpoint = agentConfig.Endpoint,
-        AvailableAgents = agentConfig.Agents.Keys.ToArray()
-    };
-})
-.WithName("GetAgents");
+app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

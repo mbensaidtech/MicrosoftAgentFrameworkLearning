@@ -71,5 +71,17 @@ public class AgentConfiguration
         }
         return agentSettings;
     }
+
+    /// <summary>
+    /// Gets an agent configuration by type.
+    /// </summary>
+    /// <param name="agentType">The type of the agent.</param>
+    /// <returns>The agent settings.</returns>
+    /// <exception cref="KeyNotFoundException">Thrown when the agent is not found in the configuration.</exception>
+    public AgentSettings GetAgent(AgentType agentType)
+    {
+        var agentName = agentType.ToString();
+        return GetAgent(agentName);
+    }
 }
 
