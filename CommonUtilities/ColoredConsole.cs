@@ -7,32 +7,12 @@ namespace CommonUtilities;
 public static class ColoredConsole
 {
     /// <summary>
-    /// Writes a user message in green color.
-    /// </summary>
-    public static void WriteUser(string? value)
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write(value);
-        Console.ResetColor();
-    }
-
-    /// <summary>
     /// Writes a user message followed by a line terminator in green color.
     /// </summary>
     public static void WriteUserLine(string? value)
     {
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(value);
-        Console.ResetColor();
-    }
-
-    /// <summary>
-    /// Writes an assistant message in cyan color.
-    /// </summary>
-    public static void WriteAssistant(string? value)
-    {
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.Write(value);
         Console.ResetColor();
     }
 
@@ -47,16 +27,6 @@ public static class ColoredConsole
     }
 
     /// <summary>
-    /// Writes a system message in yellow color.
-    /// </summary>
-    public static void WriteSystem(string? value)
-    {
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write(value);
-        Console.ResetColor();
-    }
-
-    /// <summary>
     /// Writes a system message followed by a line terminator in yellow color.
     /// </summary>
     public static void WriteSystemLine(string? value)
@@ -64,6 +34,47 @@ public static class ColoredConsole
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine(value);
         Console.ResetColor();
+    }
+
+    /// <summary>
+    /// Writes primary/important log information in blue color followed by a line terminator.
+    /// </summary>
+    public static void WritePrimaryLogLine(string? value)
+    {
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.WriteLine(value);
+        Console.ResetColor();
+    }
+
+    /// <summary>
+    /// Writes secondary/less important log information in dark gray color followed by a line terminator.
+    /// </summary>
+    public static void WriteSecondaryLogLine(string? value)
+    {
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        Console.WriteLine(value);
+        Console.ResetColor();
+    }
+
+    /// <summary>
+    /// Writes an empty line.
+    /// </summary>
+    public static void WriteEmptyLine()
+    {
+        Console.WriteLine();
+    }
+
+    /// <summary>
+    /// Writes a visual divider line using dashes in dark gray color, with empty lines before and after.
+    /// </summary>
+    public static void WriteDividerLine()
+    {
+        Console.WriteLine();
+        var divider = new string('-', Math.Max(1, Console.WindowWidth - 1));
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        Console.WriteLine(divider);
+        Console.ResetColor();
+        Console.WriteLine();
     }
 }
 
