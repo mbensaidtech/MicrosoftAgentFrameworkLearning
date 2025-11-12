@@ -34,14 +34,9 @@ public class AgentConversationService : IAgentConversationService
             throw new ArgumentException("AgentType must be set in request.Context.AgentType.", nameof(request));
         }
 
-        return await SendMessageAsync(request.Context.AgentType.Value, request);
-    }
-
-    /// <inheritdoc/>
-    public async Task<AgentRunResponse> SendMessageAsync(AgentType agentType, SendMessageRequest request)
-    {
         SendMessageRequest.Validate(request);
 
+        var agentType = request.Context.AgentType.Value;
         var persistentAgent = await _agentAdministration.GetOrCreateAgentAsync(request.Context?.AgentId, agentType);
         var agentThread = await CreateOrResumeAgentThreadAsync(persistentAgent, request.Context?.ThreadId);
 
