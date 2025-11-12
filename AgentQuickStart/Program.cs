@@ -58,5 +58,5 @@ while (true)
     
     AgentRunResponse response = await agent.RunAsync(question);
     WriteAssistantLine(response?.ToString() ?? string.Empty);
-    Console.WriteLine();
+    WriteEmptyLine();
 }
