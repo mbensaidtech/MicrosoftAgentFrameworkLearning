@@ -13,7 +13,7 @@ public class SendMessageRequest
     /// <summary>
     /// Gets or sets the conversation context containing thread ID and agent ID (optional).
     /// </summary>
-    public ConversationContext? Context { get; set; }
+    public AgentContext? Context { get; set; }
 
     /// <summary>
     /// Validates the request.

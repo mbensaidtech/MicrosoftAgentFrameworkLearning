@@ -27,6 +27,17 @@ public class AgentConversationService : IAgentConversationService
     }
 
     /// <inheritdoc/>
+    public async Task<AgentRunResponse> SendMessageAsync(SendMessageRequest request)
+    {
+        if (request.Context?.AgentType == null)
+        {
+            throw new ArgumentException("AgentType must be set in request.Context.AgentType.", nameof(request));
+        }
+
+        return await SendMessageAsync(request.Context.AgentType.Value, request);
+    }
+
+    /// <inheritdoc/>
     public async Task<AgentRunResponse> SendMessageAsync(AgentType agentType, SendMessageRequest request)
     {
         SendMessageRequest.Validate(request);

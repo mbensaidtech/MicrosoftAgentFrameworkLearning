@@ -21,7 +21,10 @@ public class AgentController : ControllerBase
     {
         try
         {
-            var agentMessage = await _agentConversationService.SendMessageAsync(AgentType.GlobalAgent, request);
+            request.Context ??= new AgentContext();
+            request.Context.AgentType = AgentType.GlobalAgent;
+
+            var agentMessage = await _agentConversationService.SendMessageAsync(request);
             return Ok(agentMessage);
         }
         catch (Exception ex)
