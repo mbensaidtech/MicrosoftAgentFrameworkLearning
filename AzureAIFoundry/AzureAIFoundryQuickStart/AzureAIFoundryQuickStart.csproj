@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\AgentConfiguration\AgentConfiguration.csproj" />
     <ProjectReference Include="..\AzureAIFoundryShared\AzureAIFoundryShared.csproj" />
+    <ProjectReference Include="..\..\CommonUtilities\CommonUtilities.csproj" />
   </ItemGroup>
 
 </Project>

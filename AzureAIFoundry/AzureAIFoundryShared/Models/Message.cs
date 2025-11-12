@@ -32,9 +32,9 @@ public class Message
     public string MessageId { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the contents of the message.
+    /// Gets or sets the content of the message.
     /// </summary>
-    [JsonPropertyName("contents")]
-    public string Contents { get; set; } = string.Empty;
+    [JsonPropertyName("content")]
+    public string Content { get; set; } = string.Empty;
 }
 

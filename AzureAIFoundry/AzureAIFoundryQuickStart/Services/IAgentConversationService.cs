@@ -1,5 +1,5 @@
 using AgentConfiguration;
-using Microsoft.Agents.AI;
+using AzureAIFoundryShared.Models;
 using AzureAIFoundryQuickStart.Models;
 
 namespace AzureAIFoundryQuickStart.Services;
@@ -14,6 +14,6 @@ public interface IAgentConversationService
     /// </summary>
     /// <param name="request">The request containing the message, optional thread ID, and agent type in context.</param>
     /// <returns>The agent's response.</returns>
-    Task<AgentRunResponse> SendMessageAsync(SendMessageRequest request);
+    Task<AgentResponse> SendMessageAsync(SendMessageRequest request);
 }
 

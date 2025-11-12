@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using AgentConfiguration;
+using AzureAIFoundryShared.Models;
 using AzureAIFoundryQuickStart.Services;
 using AzureAIFoundryQuickStart.Models;
 
@@ -17,7 +18,7 @@ public class AgentController : ControllerBase
     }
 
     [HttpPost("message")]
-    public async Task<ActionResult<string>> SendMessage([FromBody] SendMessageRequest request)
+    public async Task<ActionResult<AgentResponse>> SendMessage([FromBody] SendMessageRequest request)
     {
         try
         {

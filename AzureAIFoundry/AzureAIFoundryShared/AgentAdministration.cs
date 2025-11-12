@@ -4,6 +4,7 @@ using Azure.Identity;
 using Microsoft.Agents.AI;
 using Azure.AI.Agents.Persistent;
 using Azure;
+using static CommonUtilities.ColoredConsole;
 
 namespace AzureAIFoundryShared;
 
@@ -28,7 +29,7 @@ public class AgentAdministration : IAgentAdministration
         var credential = new DefaultAzureCredential(
             new DefaultAzureCredentialOptions { ExcludeAzureDeveloperCliCredential = false });
 
-        Console.WriteLine($"Endpoint: {_agentConfig.GetEndpoint()}");
+        WriteSecondaryLogLine($"Endpoint: {_agentConfig.GetEndpoint()}");
         _persistentAgentsClient = new(_agentConfig.GetEndpoint(), credential);
         _persistentAgentsAdministrationClient = _persistentAgentsClient.Administration;
     }

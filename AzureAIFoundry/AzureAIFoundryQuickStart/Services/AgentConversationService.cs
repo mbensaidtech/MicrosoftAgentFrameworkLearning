@@ -1,5 +1,6 @@
 using AgentConfiguration;
 using AzureAIFoundryShared;
+using AzureAIFoundryShared.Models;
 using Microsoft.Agents.AI;
 using AzureAIFoundryQuickStart.Models;
 using Azure;
@@ -7,6 +8,7 @@ using Azure.AI.Agents.Persistent;
 using Azure.Identity;
 using System.Text.Json;
 using System.Linq;
+using static CommonUtilities.ColoredConsole;
 
 namespace AzureAIFoundryQuickStart.Services;
 
@@ -27,7 +29,7 @@ public class AgentConversationService : IAgentConversationService
     }
 
     /// <inheritdoc/>
-    public async Task<AgentRunResponse> SendMessageAsync(SendMessageRequest request)
+    public async Task<AgentResponse> SendMessageAsync(SendMessageRequest request)
     {
         if (request.Context?.AgentType == null)
         {
@@ -40,9 +42,12 @@ public class AgentConversationService : IAgentConversationService
         var persistentAgent = await _agentAdministration.GetOrCreateAgentAsync(request.Context?.AgentId, agentType);
         var agentThread = await CreateOrResumeAgentThreadAsync(persistentAgent, request.Context?.ThreadId);
 
-        var agentMessage = await persistentAgent.RunAsync(request.Message, agentThread);
+        AgentRunResponse agentRunResponse = await persistentAgent.RunAsync(request.Message, agentThread);
+        agentRunResponse.LogTokenUsage();
         await SaveThreadStateAsync(persistentAgent.Id, agentThread);
-        return agentMessage;
+
+        // Convert AgentRunResponse to AgentResponse using extension method
+        return agentRunResponse.ToAgentResponse();
     }
 
     /// <summary>

@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\AgentConfiguration\AgentConfiguration.csproj" />
+    <ProjectReference Include="..\..\CommonUtilities\CommonUtilities.csproj" />
   </ItemGroup>
 
 </Project>
