@@ -1,7 +1,7 @@
 using AgentConfiguration;
 using System.Text.Json.Serialization;
 
-namespace AzureAIFoundryQuickStart.Models;
+namespace AzureAIFoundryStart.Models;
 
 /// <summary>
 /// Context object for conversation continuity.

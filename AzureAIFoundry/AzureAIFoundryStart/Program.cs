@@ -1,7 +1,7 @@
 using AgentConfiguration;
 using AgentConfig = AgentConfiguration.AgentConfiguration;
 using AzureAIFoundryShared;
-using AzureAIFoundryQuickStart.Services;
+using AzureAIFoundryStart.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

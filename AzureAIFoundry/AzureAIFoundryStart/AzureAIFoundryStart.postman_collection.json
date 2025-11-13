@@ -1,8 +1,8 @@
 {
 	"info": {
-		"_postman_id": "azure-ai-foundry-quickstart",
-		"name": "Azure AI Foundry QuickStart",
-		"description": "Postman collection for testing Azure AI Foundry QuickStart API. This collection includes endpoints for sending messages to AI agents with support for conversation continuity using threadId and agentId.",
+		"_postman_id": "azure-ai-foundry-start",
+		"name": "Azure AI Foundry Start",
+		"description": "Postman collection for testing Azure AI Foundry Start API. This collection includes endpoints for sending messages to AI agents with support for conversation continuity using threadId and agentId.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [

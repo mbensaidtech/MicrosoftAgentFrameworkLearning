@@ -1,8 +1,8 @@
 using AgentConfiguration;
 using AzureAIFoundryShared.Models;
-using AzureAIFoundryQuickStart.Models;
+using AzureAIFoundryStart.Models;
 
-namespace AzureAIFoundryQuickStart.Services;
+namespace AzureAIFoundryStart.Services;
 
 /// <summary>
 /// Interface for agent conversation service.

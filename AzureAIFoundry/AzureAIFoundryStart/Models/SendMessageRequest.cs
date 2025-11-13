@@ -1,4 +1,4 @@
-namespace AzureAIFoundryQuickStart.Models;
+namespace AzureAIFoundryStart.Models;
 
 /// <summary>
 /// Request object for sending a message to an agent.

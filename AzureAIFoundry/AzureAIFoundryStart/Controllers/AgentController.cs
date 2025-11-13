@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using AgentConfiguration;
 using AzureAIFoundryShared.Models;
-using AzureAIFoundryQuickStart.Services;
-using AzureAIFoundryQuickStart.Models;
+using AzureAIFoundryStart.Services;
+using AzureAIFoundryStart.Models;
 
-namespace AzureAIFoundryQuickStart.Controllers;
+namespace AzureAIFoundryStart.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
