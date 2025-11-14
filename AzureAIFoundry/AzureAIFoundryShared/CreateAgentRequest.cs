@@ -1,3 +1,4 @@
+using Azure.AI.Agents.Persistent;
 namespace AzureAIFoundryShared;
 
 /// <summary>
@@ -19,5 +20,15 @@ public class CreateAgentRequest
     /// Gets or sets the instructions for the agent.
     /// </summary>
     public string Instructions { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the tool resources for the agent.
+    /// </summary>
+    public ToolResources? ToolResources { get; set; } = null;
+
+    /// <summary>
+    /// Gets or sets the tools for the agent.
+    /// </summary>
+    public List<ToolDefinition>? Tools { get; set; } = null;
 }
 

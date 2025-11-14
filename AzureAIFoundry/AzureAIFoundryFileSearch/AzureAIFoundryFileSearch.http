@@ -1,0 +1,6 @@
+@AzureAIFoundryFileSearch_HostAddress = http://localhost:5181
+
+GET {{AzureAIFoundryFileSearch_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

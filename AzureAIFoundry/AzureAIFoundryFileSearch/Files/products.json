@@ -1,0 +1,482 @@
+[
+    {
+      "product_id": "TO-011",
+      "name": "Advanced Robotics Kit",
+      "brand": "BuildSmart",
+      "category": "Toys",
+      "description": "Educational kit for ages 10+ focused on coding and mechanical assembly. Includes sensors and motors.",
+      "price": 89.99,
+      "currency": "USD",
+      "stock_quantity": 40,
+      "is_available": true,
+      "attributes": {
+        "age_range": "10+",
+        "power_source": "AA Batteries (Not Included)",
+        "pieces": 550
+      }
+    },
+    {
+      "product_id": "TO-012",
+      "name": "Wooden Building Blocks Set (100 pcs)",
+      "brand": "Treehouse Toys",
+      "category": "Toys",
+      "description": "Classic set of 100 non-toxic, colorful wooden blocks in various shapes for creative play.",
+      "price": 25.00,
+      "currency": "USD",
+      "stock_quantity": 150,
+      "is_available": true,
+      "attributes": {
+        "material": "Sustainably Sourced Wood",
+        "pieces": 100,
+        "paint": "Non-Toxic"
+      }
+    },
+    {
+      "product_id": "TO-013",
+      "name": "Galaxy Explorer Drone",
+      "brand": "AeroKid",
+      "category": "Toys",
+      "description": "Small, durable drone with beginner-friendly controls and a 720p camera for aerial fun.",
+      "price": 65.99,
+      "currency": "USD",
+      "stock_quantity": 35,
+      "is_available": true,
+      "attributes": {
+        "battery_life_min": 15,
+        "camera_resolution": "720p",
+        "remote_included": true
+      }
+    },
+    {
+      "product_id": "TO-014",
+      "name": "Children's Play Kitchen",
+      "brand": "Cooktopia",
+      "category": "Toys",
+      "description": "Realistic wooden play kitchen featuring an oven, sink, and stovetop with knobs that click.",
+      "price": 120.00,
+      "currency": "USD",
+      "stock_quantity": 20,
+      "is_available": true,
+      "attributes": {
+        "material": "MDF and Pine Wood",
+        "assembly_required": true,
+        "color": "Mint Green"
+      }
+    },
+    {
+      "product_id": "TO-015",
+      "name": "Jumbo Memory Card Game",
+      "brand": "BrainyFun",
+      "category": "Toys",
+      "description": "Oversized matching game with 30 pairs of colorful animal illustrations, great for toddlers.",
+      "price": 15.75,
+      "currency": "USD",
+      "stock_quantity": 180,
+      "is_available": true,
+      "attributes": {
+        "cards": 60,
+        "theme": "Animals",
+        "packaging": "Sturdy Box"
+      }
+    },
+    {
+      "product_id": "TO-016",
+      "name": "Dinosaur Model Kit - T-Rex",
+      "brand": "PaleoCraft",
+      "category": "Toys",
+      "description": "Highly detailed, snap-together plastic model of a Tyrannosaurus Rex. No glue required.",
+      "price": 19.99,
+      "currency": "USD",
+      "stock_quantity": 75,
+      "is_available": true,
+      "attributes": {
+        "scale": "1:35",
+        "difficulty": "Intermediate",
+        "material": "ABS Plastic"
+      }
+    },
+    {
+      "product_id": "SW-017",
+      "name": "Photo Editing Suite - Annual License",
+      "brand": "PixelPerfect",
+      "category": "Software",
+      "description": "Professional-grade photo and raster image editing software subscription for one year.",
+      "price": 119.00,
+      "currency": "USD",
+      "stock_quantity": 999,
+      "is_available": true,
+      "attributes": {
+        "license_term": "1 Year",
+        "platform": "Windows, macOS",
+        "delivery_method": "Digital Download"
+      }
+    },
+    {
+      "product_id": "SW-018",
+      "name": "Cloud Backup Service - 500GB Plan",
+      "brand": "SecureStore",
+      "category": "Software",
+      "description": "Monthly subscription for automatic, encrypted cloud data backup service with 500GB storage.",
+      "price": 4.99,
+      "currency": "USD",
+      "stock_quantity": 999,
+      "is_available": true,
+      "attributes": {
+        "storage_gb": 500,
+        "billing_cycle": "Monthly",
+        "features": "Automatic Sync, Encryption"
+      }
+    },
+    {
+      "product_id": "SW-019",
+      "name": "Project Management Tool - Team Tier",
+      "brand": "TaskFlow",
+      "category": "Software",
+      "description": "Subscription for a collaborative project and task management application, supporting up to 10 users.",
+      "price": 49.00,
+      "currency": "USD",
+      "stock_quantity": 999,
+      "is_available": true,
+      "attributes": {
+        "user_limit": 10,
+        "billing_cycle": "Monthly",
+        "deployment": "SaaS (Cloud)"
+      }
+    },
+    {
+      "product_id": "SW-020",
+      "name": "PC System Utilities Pro",
+      "brand": "CleanSlate",
+      "category": "Software",
+      "description": "A utility program for optimizing, cleaning, and speeding up Windows PCs. One-time purchase.",
+      "price": 39.99,
+      "currency": "USD",
+      "stock_quantity": 999,
+      "is_available": true,
+      "attributes": {
+        "license_type": "Lifetime",
+        "platform": "Windows 10/11",
+        "activation_key_delivery": "Email"
+      }
+    },
+    {
+      "product_id": "SW-021",
+      "name": "Language Learning App - Lifetime Access",
+      "brand": "LinguaPro",
+      "category": "Software",
+      "description": "One-time purchase for permanent access to all language courses offered by the platform.",
+      "price": 199.00,
+      "currency": "USD",
+      "stock_quantity": 999,
+      "is_available": true,
+      "attributes": {
+        "access_duration": "Lifetime",
+        "supported_languages": 15,
+        "device_compatibility": "Mobile, Desktop"
+      }
+    },
+    {
+      "product_id": "SW-022",
+      "name": "Video Editing Software - Basic Edition",
+      "brand": "CineCut",
+      "category": "Software",
+      "description": "Entry-level, non-linear video editing software suitable for beginners and social media creators.",
+      "price": 79.99,
+      "currency": "USD",
+      "stock_quantity": 999,
+      "is_available": true,
+      "attributes": {
+        "resolution_support": "Up to 4K",
+        "platform": "Windows, macOS",
+        "license_type": "Perpetual"
+      }
+    },
+    {
+      "product_id": "JW-023",
+      "name": "Sterling Silver Pendant Necklace",
+      "brand": "Gemma Fine",
+      "category": "Jewelry",
+      "description": "Delicate sterling silver chain with a small, circular zirconia pendant.",
+      "price": 75.00,
+      "currency": "USD",
+      "stock_quantity": 50,
+      "is_available": true,
+      "attributes": {
+        "metal": "925 Sterling Silver",
+        "stone_type": "Cubic Zirconia",
+        "chain_length_in": 18
+      }
+    },
+    {
+      "product_id": "JW-024",
+      "name": "Men's Black Stainless Steel Watch",
+      "brand": "TimeKlass",
+      "category": "Jewelry",
+      "description": "Analog wristwatch with a matte black stainless steel case and link band. Water-resistant.",
+      "price": 150.00,
+      "currency": "USD",
+      "stock_quantity": 30,
+      "is_available": true,
+      "attributes": {
+        "material": "Stainless Steel",
+        "movement": "Quartz",
+        "water_resistance_atm": 5
+      }
+    },
+    {
+      "product_id": "JW-025",
+      "name": "14K Gold Hoop Earrings",
+      "brand": "Aureus",
+      "category": "Jewelry",
+      "description": "Classic medium-sized hoop earrings made from solid 14K yellow gold with secure clasp closure.",
+      "price": 299.00,
+      "currency": "USD",
+      "stock_quantity": 15,
+      "is_available": true,
+      "attributes": {
+        "metal_purity": "14K Gold",
+        "earring_type": "Hoop",
+        "diameter_mm": 30
+      }
+    },
+    {
+      "product_id": "JW-026",
+      "name": "Raw Amethyst Crystal Ring",
+      "brand": "EarthStone",
+      "category": "Jewelry",
+      "description": "Adjustable ring featuring a single, unpolished raw amethyst crystal cluster.",
+      "price": 45.00,
+      "currency": "USD",
+      "stock_quantity": 65,
+      "is_available": true,
+      "attributes": {
+        "gemstone": "Amethyst",
+        "setting": "Prong",
+        "size": "Adjustable"
+      }
+    },
+    {
+      "product_id": "JW-027",
+      "name": "Pearl Stud Earrings Set",
+      "brand": "OceanGlow",
+      "category": "Jewelry",
+      "description": "Set of three sizes (6mm, 8mm, 10mm) of cultured freshwater pearl stud earrings.",
+      "price": 110.00,
+      "currency": "USD",
+      "stock_quantity": 25,
+      "is_available": true,
+      "attributes": {
+        "material": "Cultured Freshwater Pearl",
+        "post_material": "Sterling Silver",
+        "sizes_mm": "6, 8, 10"
+      }
+    },
+    {
+      "product_id": "JW-028",
+      "name": "Leather and Anchor Bracelet",
+      "brand": "NauticaStyle",
+      "category": "Jewelry",
+      "description": "Braided genuine leather bracelet with a nautical-themed stainless steel anchor clasp.",
+      "price": 35.00,
+      "currency": "USD",
+      "stock_quantity": 80,
+      "is_available": true,
+      "attributes": {
+        "material": "Genuine Leather",
+        "clasp_material": "Stainless Steel",
+        "length_in": 8.5
+      }
+    },
+    {
+      "product_id": "FN-029",
+      "name": "Mid-Century Modern Dining Chair",
+      "brand": "StyleNest",
+      "category": "Furniture",
+      "description": "Ergonomic dining chair with a curved plywood back and cushioned fabric seat. Single chair.",
+      "price": 85.00,
+      "currency": "USD",
+      "stock_quantity": 40,
+      "is_available": true,
+      "attributes": {
+        "frame_material": "Oak Wood",
+        "seat_material": "Polyester Fabric",
+        "color": "Gray"
+      }
+    },
+    {
+      "product_id": "FN-030",
+      "name": "Queen Size Platform Bed Frame",
+      "brand": "DreamRest",
+      "category": "Furniture",
+      "description": "Minimalist queen-sized bed frame with wooden slats, requiring no box spring. Easy assembly.",
+      "price": 250.00,
+      "currency": "USD",
+      "stock_quantity": 15,
+      "is_available": true,
+      "attributes": {
+        "size": "Queen",
+        "material": "Steel and Wood",
+        "headboard_included": false
+      }
+    },
+    {
+      "product_id": "FN-031",
+      "name": "Three-Drawer Filing Cabinet",
+      "brand": "OfficePro",
+      "category": "Furniture",
+      "description": "Metal three-drawer cabinet with full-extension slides and a built-in locking mechanism.",
+      "price": 149.99,
+      "currency": "USD",
+      "stock_quantity": 25,
+      "is_available": true,
+      "attributes": {
+        "material": "Steel",
+        "color": "Charcoal",
+        "locking": true
+      }
+    },
+    {
+      "product_id": "FN-032",
+      "name": "Adjustable Height Standing Desk",
+      "brand": "ErgoWorks",
+      "category": "Furniture",
+      "description": "Electric standing desk with programmable memory settings and a durable laminate desktop.",
+      "price": 399.00,
+      "currency": "USD",
+      "stock_quantity": 10,
+      "is_available": true,
+      "attributes": {
+        "operation": "Electric",
+        "max_height_in": 48,
+        "desktop_width_in": 60
+      }
+    },
+    {
+      "product_id": "FN-033",
+      "name": "Area Rug - 8x10 Geometric",
+      "brand": "FloorArt",
+      "category": "Furniture",
+      "description": "Large 8x10 area rug with a modern black and white geometric pattern. Low pile height.",
+      "price": 180.00,
+      "currency": "USD",
+      "stock_quantity": 30,
+      "is_available": true,
+      "attributes": {
+        "size_ft": "8x10",
+        "material": "Polypropylene",
+        "pattern": "Geometric"
+      }
+    },
+    {
+      "product_id": "FN-034",
+      "name": "Side Table with USB Ports",
+      "brand": "ChargeZone",
+      "category": "Furniture",
+      "description": "Small end table featuring two built-in USB charging ports and a lower storage shelf.",
+      "price": 79.95,
+      "currency": "USD",
+      "stock_quantity": 55,
+      "is_available": true,
+      "attributes": {
+        "features": "2 USB Ports, Shelf",
+        "material": "Particle Board, Laminate",
+        "dimensions_in": "18x18x24"
+      }
+    },
+    {
+      "product_id": "FD-035",
+      "name": "Ethiopian Yirgacheffe Whole Bean Coffee (12oz)",
+      "brand": "Roastology",
+      "category": "Food & Drink",
+      "description": "Lightly roasted single-origin whole bean coffee with citrus and floral notes. 12 oz bag.",
+      "price": 16.50,
+      "currency": "USD",
+      "stock_quantity": 100,
+      "is_available": true,
+      "attributes": {
+        "format": "Whole Bean",
+        "roast_level": "Light",
+        "weight_oz": 12
+      }
+    },
+    {
+      "product_id": "FD-036",
+      "name": "Organic Extra Virgin Olive Oil (500ml)",
+      "brand": "OlioFino",
+      "category": "Food & Drink",
+      "description": "Cold-pressed, organic extra virgin olive oil from early harvest Spanish olives. 500ml bottle.",
+      "price": 19.99,
+      "currency": "USD",
+      "stock_quantity": 70,
+      "is_available": true,
+      "attributes": {
+        "origin": "Spain",
+        "volume_ml": 500,
+        "certification": "Organic"
+      }
+    },
+    {
+      "product_id": "FD-037",
+      "name": "Artisan Dark Chocolate Bar - Sea Salt",
+      "brand": "CocoaCraft",
+      "category": "Food & Drink",
+      "description": "70% single-origin dark chocolate bar sprinkled with Mediterranean sea salt.",
+      "price": 5.00,
+      "currency": "USD",
+      "stock_quantity": 250,
+      "is_available": true,
+      "attributes": {
+        "cocoa_percentage": 70,
+        "flavor": "Sea Salt",
+        "weight_grams": 100
+      }
+    },
+    {
+      "product_id": "FD-038",
+      "name": "Spicy Chili Crisp Oil (8oz Jar)",
+      "brand": "HeatWave",
+      "category": "Food & Drink",
+      "description": "Crispy chili flakes and peanuts simmered in savory oil. Excellent condiment for noodles and rice.",
+      "price": 9.95,
+      "currency": "USD",
+      "stock_quantity": 120,
+      "is_available": true,
+      "attributes": {
+        "spice_level": "Medium",
+        "packaging": "Glass Jar",
+        "volume_oz": 8
+      }
+    },
+    {
+      "product_id": "FD-039",
+      "name": "Sampler Tea Collection - Black & Green",
+      "brand": "TeaBliss",
+      "category": "Food & Drink",
+      "description": "Assortment of 40 individually wrapped tea bags, including 5 popular black and green tea blends.",
+      "price": 12.00,
+      "currency": "USD",
+      "stock_quantity": 90,
+      "is_available": true,
+      "attributes": {
+        "type": "Black, Green",
+        "bags_count": 40,
+        "caffeine_level": "Mixed"
+      }
+    },
+    {
+      "product_id": "FD-040",
+      "name": "Gluten-Free Penne Pasta (16oz)",
+      "brand": "GrainLite",
+      "category": "Food & Drink",
+      "description": "Pasta made from a blend of corn and rice flour, providing a great texture without gluten.",
+      "price": 4.50,
+      "currency": "USD",
+      "stock_quantity": 150,
+      "is_available": true,
+      "attributes": {
+        "dietary_info": "Gluten-Free",
+        "shape": "Penne",
+        "weight_oz": 16
+      }
+    }
+  ]

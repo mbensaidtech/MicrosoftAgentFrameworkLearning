@@ -23,6 +23,11 @@ public enum AgentType
     /// <summary>
     /// Orchestrator agent - coordinates and manages tasks between different agents.
     /// </summary>
-    OrchestratorAgent
+    OrchestratorAgent,
+
+    /// <summary>
+    /// Product search agent - specialized in searching for products in the products vector store.
+    /// </summary>
+    ProductSearchAgent
 }
 
