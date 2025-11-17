@@ -11,14 +11,9 @@ public class InitializeVectorStoreRequest
     public string? VectorStoreName { get; set; }
 
     /// <summary>
-    /// Gets or sets the path to the file to upload and associate with the vector store.
+    /// Gets or sets the list of files to upload and associate with the vector store.
     /// </summary>
-    public string FilePath { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the optional filename to use when uploading the file. If null, the filename from FilePath will be used.
-    /// </summary>
-    public string? FileName { get; set; }
+    public List<VectorStoreFileInfo> Files { get; set; } = new List<VectorStoreFileInfo>();
 
     /// <summary>
     /// Gets or sets the vector store ID if updating an existing store. If null, a new store will be created.
@@ -29,5 +24,16 @@ public class InitializeVectorStoreRequest
     /// Gets or sets the optional description for the vector store. Used when creating a new store.
     /// </summary>
     public string? VectorStoreDescription { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to clean the vector store (remove all existing files).
+    /// </summary>
+    public bool CleanVectorStore { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to remove files from Datasets when cleaning the vector store.
+    /// If true, files will be deleted from Azure AI Foundry file storage (Datasets) in addition to being removed from the vector store.
+    /// </summary>
+    public bool CleanVectorStoreAndRemoveFilesFromDatasets { get; set; } = false;
 }
 

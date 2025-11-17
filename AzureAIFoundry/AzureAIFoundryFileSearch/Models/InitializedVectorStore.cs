@@ -14,10 +14,10 @@ public class InitializedVectorStore
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the file ID that was uploaded and associated with the vector store.
+    /// Gets or sets the list of files that were uploaded and associated with the vector store.
     /// </summary>
-    [JsonPropertyName("fileId")]
-    public string FileId { get; set; } = string.Empty;
+    [JsonPropertyName("files")]
+    public List<VectorStoreFileInfo> Files { get; set; } = new List<VectorStoreFileInfo>();
 
     /// <summary>
     /// Gets or sets the vector store ID that was created.

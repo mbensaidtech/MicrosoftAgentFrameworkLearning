@@ -14,93 +14,46 @@ using static CommonUtilities.ColoredConsole;
 namespace AzureAIFoundryFileSearch.Services;
 
 /// <summary>
-/// Service for agent conversations.
+/// Service for thread management and conversations.
 /// </summary>
-public class AgentConversationService : IAgentConversationService
+public class ThreadService : IThreadService
 {
-    private readonly IAgentAdministration _agentAdministration;
+    private readonly IPersistentAgentsClientFacade _persistentAgentsClientFacade;
     private readonly AgentConfig _agentConfig;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AgentConversationService"/> class.
+    /// Initializes a new instance of the <see cref="ThreadService"/> class.
     /// </summary>
-    /// <param name="agentAdministration">The agent administration service.</param>
+    /// <param name="persistentAgentsClientFacade">The persistent agents client facade.</param>
     /// <param name="agentConfig">The agent configuration.</param>
-    public AgentConversationService(IAgentAdministration agentAdministration, AgentConfig agentConfig)
+    public ThreadService(IPersistentAgentsClientFacade persistentAgentsClientFacade, AgentConfig agentConfig)
     {
-        _agentAdministration = agentAdministration ?? throw new ArgumentNullException(nameof(agentAdministration));
+        _persistentAgentsClientFacade = persistentAgentsClientFacade ?? throw new ArgumentNullException(nameof(persistentAgentsClientFacade));
         _agentConfig = agentConfig ?? throw new ArgumentNullException(nameof(agentConfig));
     }
 
-    /// <summary>
-    /// Initializes a vector store by name using configuration.
-    /// </summary>
-    /// <param name="vectorStoreName">The name of the vector store configuration.</param>
-    /// <returns>The initialized vector store information.</returns>
-    public async Task<Models.InitializedVectorStore> InitVectorStoreAsync(string vectorStoreName)
-    {
-        var vectorStoreConfig = _agentConfig.GetVectorStore(vectorStoreName);
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Files", vectorStoreConfig.FilePath);
-        
-        var request = new AzureAIFoundryShared.Models.InitializeVectorStoreRequest
-        {
-            VectorStoreName = vectorStoreConfig.VectorStoreName, // Can be null if VectorStoreId is provided
-            FilePath = filePath,
-            FileName = vectorStoreConfig.FileName,
-            VectorStoreId = vectorStoreConfig.VectorStoreId,
-            VectorStoreDescription = vectorStoreConfig.VectorStoreDescription
-        };
-
-        var result = await _agentAdministration.InitializeVectorStoreAsync(request);
-
-        return new Models.InitializedVectorStore
-        {
-            Name = vectorStoreName,
-            FileId = result.FileId,
-            VectorStoreId = result.VectorStoreId
-        };
-    }
-
-    /// <summary>
-    /// Initializes all configured vector stores where Initialize is true.
-    /// </summary>
-    /// <returns>The list of initialized vector stores.</returns>
-    public async Task<List<Models.InitializedVectorStore>> InitAllVectorStoresAsync()
-    {
-        var initializedStores = new List<Models.InitializedVectorStore>();
-        
-        foreach (var kvp in _agentConfig.VectorStores)
-        {
-            if (kvp.Value.Initialize)
-            {
-                var initializedStore = await InitVectorStoreAsync(kvp.Key);
-                initializedStores.Add(initializedStore);
-            }
-        }
-
-        return initializedStores;
-    }
 
     /// <inheritdoc/>
     public async Task<AgentResponse> SendMessageAsync(SendMessageRequest request)
     {
-        if (request.Context?.AgentType == null)
-        {
-            throw new ArgumentException("AgentType must be set in request.Context.AgentType.", nameof(request));
-        }
-
         SendMessageRequest.Validate(request);
 
-        var agentType = request.Context.AgentType.Value;
-        var persistentAgent = await _agentAdministration.GetOrCreateAgentAsync(request.Context?.AgentId, agentType);
+        // AgentType is only required when agentId is not provided (creating a new agent)
+        if (string.IsNullOrWhiteSpace(request.Context?.AgentId) && request.Context?.AgentType == null)
+        {
+            throw new ArgumentException("AgentType must be set when agentId is not provided.", nameof(request));
+        }
+
+        var agentType = request.Context?.AgentType;
+        var persistentAgent = await _persistentAgentsClientFacade.GetOrCreateAgentAsync(request.Context?.AgentId, agentType);
         var agentThread = await CreateOrResumeAgentThreadAsync(persistentAgent, request.Context?.ThreadId);
 
         AgentRunResponse agentRunResponse = await persistentAgent.RunAsync(request.Message, agentThread);
         agentRunResponse.LogTokenUsage();
         await SaveThreadStateAsync(persistentAgent.Id, agentThread);
 
-        // Convert AgentRunResponse to AgentResponse using extension method
-        return agentRunResponse.ToAgentResponse();
+        // Convert AgentRunResponse to AgentResponse using extension method, including threadId
+        return agentRunResponse.ToAgentResponse(agentThread);
     }
 
     /// <summary>
@@ -149,16 +102,14 @@ public class AgentConversationService : IAgentConversationService
     private string GetThreadStateFilePath(string agentId, string threadId)
     {
         string directory = GetThreadStateDirectory(agentId);
-        string fileName = $"{threadId}.json";
-        return Path.Combine(directory, fileName);
+        return Path.Combine(directory, $"{threadId}.json");
     }
 
     /// <summary>
-    /// Serializes and saves the thread state to a local file using threadId as filename.
-    /// Structure: AgentsThreads/{agentId}/Threads/{threadId}.json
+    /// Saves the thread state to a JSON file for persistence.
     /// </summary>
     /// <param name="agentId">The agent ID.</param>
-    /// <param name="agentThread">The agent thread to serialize and save.</param>
+    /// <param name="agentThread">The agent thread to save.</param>
     /// <remarks>This is an example implementation. Replace with DB or blob storage in production.</remarks>
     private async Task SaveThreadStateAsync(string agentId, AgentThread agentThread)
     {
@@ -198,11 +149,7 @@ public class AgentConversationService : IAgentConversationService
     {
         string directory = GetThreadStateDirectory(agentId);
         
-        if (!Directory.Exists(directory))
-        {
-            return null;
-        }
-
+        // Try to find the file with the threadId
         string filePath = GetThreadStateFilePath(agentId, threadId);
         
         if (!File.Exists(filePath))
@@ -217,8 +164,10 @@ public class AgentConversationService : IAgentConversationService
             AgentThread resumedThread = agent.DeserializeThread(reloaded, JsonSerializerOptions.Web);
             return resumedThread;
         }
-        catch
+        catch (Exception ex)
         {
+            // Log error and return null if deserialization fails
+            WriteSecondaryLogLine($"Failed to resume thread {threadId} for agent {agentId}: {ex.Message}");
             return null;
         }
     }

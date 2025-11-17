@@ -14,5 +14,10 @@ public class AgentSettings
     /// Gets or sets the instructions for the agent.
     /// </summary>
     public string Instructions { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the tools configuration for the agent.
+    /// </summary>
+    public AgentToolsSettings? Tools { get; set; }
 }
 

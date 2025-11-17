@@ -1,6 +1,7 @@
 using AzureAIFoundryShared.Models;
 using Microsoft.Agents.AI;
 using System.Linq;
+using System.Text.Json;
 using static CommonUtilities.ColoredConsole;
 
 namespace AzureAIFoundryShared;
@@ -25,6 +26,7 @@ public static class AgentRunResponseExtensions
         return new AgentResponse
         {
             AgentId = agentRunResponse.AgentId ?? string.Empty,
+            ThreadId = string.Empty, // ThreadId will be empty if not provided via overload
             CreatedAt = agentRunResponse.CreatedAt?.DateTime ?? DateTime.UtcNow,
             Usage = agentRunResponse.Usage != null ? new TokenUsage
             {
@@ -44,6 +46,66 @@ public static class AgentRunResponseExtensions
                 Content = ExtractTextContent(msg.Contents)
             }).ToList() ?? new List<Message>()
         };
+    }
+
+    /// <summary>
+    /// Converts an AgentRunResponse to an AgentResponse, including the thread ID from the AgentThread.
+    /// </summary>
+    /// <param name="agentRunResponse">The agent run response to convert.</param>
+    /// <param name="agentThread">The agent thread to extract the thread ID from.</param>
+    /// <returns>An AgentResponse containing the mapped data, including the thread ID.</returns>
+    public static AgentResponse ToAgentResponse(this AgentRunResponse agentRunResponse, AgentThread agentThread)
+    {
+        if (agentRunResponse == null)
+        {
+            throw new ArgumentNullException(nameof(agentRunResponse));
+        }
+
+        var response = agentRunResponse.ToAgentResponse();
+        
+        // Extract threadId from the AgentThread
+        if (agentThread != null)
+        {
+            response.ThreadId = ExtractThreadId(agentThread);
+        }
+
+        return response;
+    }
+
+    /// <summary>
+    /// Extracts the thread ID (conversationId) from an AgentThread.
+    /// </summary>
+    /// <param name="agentThread">The agent thread to extract the thread ID from.</param>
+    /// <returns>The thread ID, or an empty string if not found.</returns>
+    private static string ExtractThreadId(AgentThread agentThread)
+    {
+        if (agentThread == null)
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            // Serialize the thread to JSON and extract conversationId
+            string serializedJson = agentThread.Serialize(JsonSerializerOptions.Web).GetRawText();
+            JsonElement jsonElement = JsonSerializer.Deserialize<JsonElement>(serializedJson, JsonSerializerOptions.Web);
+            
+            // Extract threadId from the JSON (property name is conversationId in the JSON)
+            if (jsonElement.TryGetProperty("conversationId", out var conversationIdElement))
+            {
+                var threadId = conversationIdElement.GetString();
+                if (!string.IsNullOrWhiteSpace(threadId))
+                {
+                    return threadId;
+                }
+            }
+        }
+        catch
+        {
+            // If extraction fails, return empty string
+        }
+
+        return string.Empty;
     }
 
     /// <summary>

@@ -17,15 +17,15 @@ namespace AzureAIFoundryStart.Services;
 /// </summary>
 public class AgentConversationService : IAgentConversationService
 {
-    private readonly IAgentAdministration _agentAdministration;
+    private readonly IPersistentAgentsClientFacade _persistentAgentsClientFacade;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AgentConversationService"/> class.
     /// </summary>
-    /// <param name="agentAdministration">The agent administration service.</param>
-    public AgentConversationService(IAgentAdministration agentAdministration)
+    /// <param name="persistentAgentsClientFacade">The persistent agents client facade.</param>
+    public AgentConversationService(IPersistentAgentsClientFacade persistentAgentsClientFacade)
     {
-        _agentAdministration = agentAdministration ?? throw new ArgumentNullException(nameof(agentAdministration));
+        _persistentAgentsClientFacade = persistentAgentsClientFacade ?? throw new ArgumentNullException(nameof(persistentAgentsClientFacade));
     }
 
     /// <inheritdoc/>
@@ -39,15 +39,15 @@ public class AgentConversationService : IAgentConversationService
         SendMessageRequest.Validate(request);
 
         var agentType = request.Context.AgentType.Value;
-        var persistentAgent = await _agentAdministration.GetOrCreateAgentAsync(request.Context?.AgentId, agentType);
+        var persistentAgent = await _persistentAgentsClientFacade.GetOrCreateAgentAsync(request.Context?.AgentId, agentType);
         var agentThread = await CreateOrResumeAgentThreadAsync(persistentAgent, request.Context?.ThreadId);
 
         AgentRunResponse agentRunResponse = await persistentAgent.RunAsync(request.Message, agentThread);
         agentRunResponse.LogTokenUsage();
         await SaveThreadStateAsync(persistentAgent.Id, agentThread);
 
-        // Convert AgentRunResponse to AgentResponse using extension method
-        return agentRunResponse.ToAgentResponse();
+        // Convert AgentRunResponse to AgentResponse using extension method, including threadId
+        return agentRunResponse.ToAgentResponse(agentThread);
     }
 
     /// <summary>

@@ -5,23 +5,25 @@ using Microsoft.Agents.AI;
 using Azure.AI.Agents.Persistent;
 using Azure;
 using static CommonUtilities.ColoredConsole;
+using System.Linq;
 
 namespace AzureAIFoundryShared;
 
 /// <summary>
-/// Service for agent administration.
+/// Facade for persistent agents client operations.
+/// Provides a unified interface for managing agents, vector stores, and files.
 /// </summary>
-public class AgentAdministration : IAgentAdministration
+public class PersistentAgentsClientFacade : IPersistentAgentsClientFacade
 {
     private readonly AgentConfig _agentConfig;
     private readonly PersistentAgentsClient _persistentAgentsClient;
     private readonly PersistentAgentsAdministrationClient _persistentAgentsAdministrationClient;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AgentAdministration"/> class.
+    /// Initializes a new instance of the <see cref="PersistentAgentsClientFacade"/> class.
     /// </summary>
     /// <param name="agentConfig">The agent configuration.</param>
-    public AgentAdministration(AgentConfig agentConfig)
+    public PersistentAgentsClientFacade(AgentConfig agentConfig)
     {
         _agentConfig = agentConfig ?? throw new ArgumentNullException(nameof(agentConfig));
 
@@ -60,13 +62,12 @@ public class AgentAdministration : IAgentAdministration
     /// Uploads a file to azure ai foundry.
     /// </summary>
     /// <param name="filePath">The path to the file to upload.</param>
-    /// <param name="fileName">Optional filename to use. If null, the filename from filePath will be used.</param>
     /// <returns>The response from the file upload.</returns>
-    public async Task<Response<PersistentAgentFileInfo>> UploadFileAsync(string filePath, string? fileName = null)
+    public async Task<Response<PersistentAgentFileInfo>> UploadFileAsync(string filePath)
     {
-        // Note: The Azure SDK may not support custom filename directly, but we pass it if available
-        // The actual implementation depends on the SDK capabilities
-        return await _persistentAgentsClient.Files.UploadFileAsync(filePath, PersistentAgentFilePurpose.Agents);
+        string fileName = Path.GetFileName(filePath);
+        using var fileStream = File.OpenRead(filePath);
+        return await _persistentAgentsClient.Files.UploadFileAsync(fileStream, PersistentAgentFilePurpose.Agents, fileName);
     }
 
     /// <summary>
@@ -114,8 +115,11 @@ public class AgentAdministration : IAgentAdministration
             // Get existing vector store
             vectorStore = await _persistentAgentsClient.VectorStores.GetVectorStoreAsync(request.VectorStoreId);
             
-            // Clean the vector store before uploading new file
-            await CleanVectorStoreAsync(request.VectorStoreId);
+            // Clean the vector store before uploading new file if requested
+            if (request.CleanVectorStore)
+            {
+                await CleanVectorStoreAsync(request.VectorStoreId, request.CleanVectorStoreAndRemoveFilesFromDatasets);
+            }
         }
         else
         {
@@ -127,14 +131,25 @@ public class AgentAdministration : IAgentAdministration
             vectorStore = await CreateVectorStoreAsync(request.VectorStoreName, request.VectorStoreDescription);
         }
 
-        var file = await UploadFileAsync(request.FilePath, request.FileName);
-        await AddFileToVectorStoreAsync(vectorStore.Value.Id, file.Value.Id);
+        // Upload all files and add them to the vector store
+        var files = new List<Models.VectorStoreFileResult>();
+        foreach (var fileInfo in request.Files)
+        {
+            var file = await UploadFileAsync(fileInfo.FilePath);
+            await AddFileToVectorStoreAsync(vectorStore.Value.Id, file.Value.Id);
+            
+            files.Add(new Models.VectorStoreFileResult
+            {
+                FileId = file.Value.Id,
+                FileName = Path.GetFileName(fileInfo.FilePath)
+            });
+        }
 
         // Always use the name from the vector store to ensure accuracy
         return new Models.VectorStoreInitializationResult
         {
             VectorStoreName = vectorStore.Value.Name ?? string.Empty,
-            FileId = file.Value.Id,
+            Files = files,
             VectorStoreId = vectorStore.Value.Id
         };
     }
@@ -218,16 +233,96 @@ public class AgentAdministration : IAgentAdministration
         var agentSettings = _agentConfig.GetAgent(agentType);
         var deploymentName = _agentConfig.GetDeploymentName();
 
+        var (toolResources, tools) = CreateToolResourcesAndTools(agentSettings);
+
         return new CreateAgentRequest
         {
             DeploymentName = deploymentName,
             AgentName = agentSettings.Name,
-            Instructions = agentSettings.Instructions
+            Instructions = agentSettings.Instructions,
+            ToolResources = toolResources,
+            Tools = tools
         };
     }
 
     /// <summary>
+    /// Creates ToolResources and Tools based on agent settings configuration.
+    /// </summary>
+    /// <param name="agentSettings">The agent settings containing tools configuration.</param>
+    /// <returns>A tuple containing ToolResources and Tools, or null values if not configured.</returns>
+    private (ToolResources? toolResources, List<ToolDefinition>? tools) CreateToolResourcesAndTools(AgentConfiguration.AgentSettings agentSettings)
+    {
+        // If VectorStoreId is configured, create ToolResources and Tools
+        if (string.IsNullOrWhiteSpace(agentSettings.Tools?.VectorStores?.VectorStoreId))
+        {
+            return (null, null);
+        }
+
+        var vectorStoreId = agentSettings.Tools.VectorStores.VectorStoreId;
+        var maxNumResults = agentSettings.Tools.VectorStores.MaxNumResults;
+        
+        var toolResources = new ToolResources
+        {
+            FileSearch = new FileSearchToolResource
+            {
+                VectorStoreIds = { vectorStoreId }
+            }
+        };
+
+        var tools = new List<ToolDefinition>
+        {
+            new FileSearchToolDefinition
+            {
+                FileSearch = new FileSearchToolDefinitionDetails
+                {
+                    MaxNumResults = maxNumResults
+                }
+            }
+        };
+
+        return (toolResources, tools);
+    }
+
+    /// <summary>
+    /// Gets a vector store by ID.
+    /// </summary>
+    /// <param name="vectorStoreId">The ID of the vector store.</param>
+    /// <returns>The vector store.</returns>
+    public async Task<Response<PersistentAgentsVectorStore>> GetVectorStoreAsync(string vectorStoreId)
+    {
+        if (string.IsNullOrWhiteSpace(vectorStoreId))
+        {
+            throw new ArgumentException("Vector store ID cannot be null or empty.", nameof(vectorStoreId));
+        }
+
+        return await _persistentAgentsClient.VectorStores.GetVectorStoreAsync(vectorStoreId);
+    }
+
+    /// <summary>
     /// Gets all files from a vector store.
+    /// </summary>
+    /// <param name="vectorStoreId">The ID of the vector store.</param>
+    /// <returns>A list of vector store files.</returns>
+    public Task<List<VectorStoreFile>> GetVectorStoreFilesAsync(string vectorStoreId)
+    {
+        if (string.IsNullOrWhiteSpace(vectorStoreId))
+        {
+            throw new ArgumentException("Vector store ID cannot be null or empty.", nameof(vectorStoreId));
+        }
+
+        var files = new List<VectorStoreFile>();
+        Pageable<VectorStoreFile> pageableFiles = _persistentAgentsClient.VectorStores.GetVectorStoreFiles(vectorStoreId);
+        
+        foreach (var file in pageableFiles)
+        {
+            files.Add(file);
+        }
+
+        return Task.FromResult(files);
+    }
+
+    /// <summary>
+    /// Gets all files from a vector store (private method for internal use).
     /// </summary>
     /// <param name="vectorStoreId">The ID of the vector store.</param>
     /// <returns>A list of vector store files.</returns>
@@ -255,7 +350,7 @@ public class AgentAdministration : IAgentAdministration
     /// <param name="vectorStoreId">The ID of the vector store.</param>
     /// <param name="fileId">The ID of the file to delete.</param>
     /// <returns>The response indicating whether the file was deleted.</returns>
-    private async Task<Response<bool>> DeleteVectorStoreFileAsync(string vectorStoreId, string fileId)
+    public async Task<Response<bool>> DeleteVectorStoreFileAsync(string vectorStoreId, string fileId)
     {
         if (string.IsNullOrWhiteSpace(vectorStoreId))
         {
@@ -274,8 +369,9 @@ public class AgentAdministration : IAgentAdministration
     /// Cleans a vector store by deleting all files from it.
     /// </summary>
     /// <param name="vectorStoreId">The ID of the vector store to clean.</param>
+    /// <param name="removeFilesFromDatasets">If true, files will also be deleted from Azure AI Foundry file storage (Datasets).</param>
     /// <returns>The task representing the asynchronous operation.</returns>
-    private async Task CleanVectorStoreAsync(string vectorStoreId)
+    public async Task CleanVectorStoreAsync(string vectorStoreId, bool removeFilesFromDatasets = false)
     {
         if (string.IsNullOrWhiteSpace(vectorStoreId))
         {
@@ -290,9 +386,60 @@ public class AgentAdministration : IAgentAdministration
         {
             if (!string.IsNullOrWhiteSpace(file.Id))
             {
-                await DeleteVectorStoreFileAsync(vectorStoreId, file.Id);
+                if (removeFilesFromDatasets)
+                {
+                    // First, remove from vector store
+                    await DeleteVectorStoreFileAsync(vectorStoreId, file.Id);
+                    // Then, remove from Datasets
+                    await DeleteFileAsync(file.Id);
+                }
+                else
+                {
+                    // Only remove from vector store
+                    await DeleteVectorStoreFileAsync(vectorStoreId, file.Id);
+                }
             }
         }
+    }
+
+    /// <summary>
+    /// Gets a file by ID.
+    /// </summary>
+    /// <param name="fileId">The ID of the file.</param>
+    /// <returns>The file information.</returns>
+    public async Task<Response<PersistentAgentFileInfo>> GetFileAsync(string fileId)
+    {
+        if (string.IsNullOrWhiteSpace(fileId))
+        {
+            throw new ArgumentException("File ID cannot be null or empty.", nameof(fileId));
+        }
+
+        return await _persistentAgentsClient.Files.GetFileAsync(fileId);
+    }
+
+    /// <summary>
+    /// Lists all files.
+    /// </summary>
+    /// <returns>A list of files.</returns>
+    public async Task<List<PersistentAgentFileInfo>> ListFilesAsync()
+    {
+        var response = await _persistentAgentsClient.Files.GetFilesAsync();
+        return response.Value?.ToList() ?? new List<PersistentAgentFileInfo>();
+    }
+
+    /// <summary>
+    /// Deletes a file from Azure AI Foundry file storage (Datasets).
+    /// </summary>
+    /// <param name="fileId">The ID of the file to delete.</param>
+    /// <returns>The task representing the asynchronous operation.</returns>
+    public async Task DeleteFileAsync(string fileId)
+    {
+        if (string.IsNullOrWhiteSpace(fileId))
+        {
+            throw new ArgumentException("File ID cannot be null or empty.", nameof(fileId));
+        }
+
+        await _persistentAgentsClient.Files.DeleteFileAsync(fileId);
     }
 
 }

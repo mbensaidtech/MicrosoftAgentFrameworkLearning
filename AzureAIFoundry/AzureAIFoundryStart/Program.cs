@@ -11,8 +11,8 @@ builder.Services.AddControllers();
 // Add agent configuration from appsettings.json
 builder.Services.AddAgentConfiguration(builder.Configuration);
 
-// Register agent administration service
-builder.Services.AddScoped<IAgentAdministration, AgentAdministration>();
+// Register persistent agents client facade
+builder.Services.AddScoped<IPersistentAgentsClientFacade, PersistentAgentsClientFacade>();
 
 // Register agent conversation service
 builder.Services.AddScoped<IAgentConversationService, AgentConversationService>();

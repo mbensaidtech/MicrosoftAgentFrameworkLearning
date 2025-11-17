@@ -12,11 +12,20 @@ builder.Services.AddControllers();
 // Add agent configuration from appsettings.json
 builder.Services.AddAgentConfiguration(builder.Configuration);
 
-// Register agent administration service
-builder.Services.AddScoped<IAgentAdministration, AgentAdministration>();
+// Register persistent agents client facade
+builder.Services.AddScoped<IPersistentAgentsClientFacade, PersistentAgentsClientFacade>();
 
-// Register agent conversation service
-builder.Services.AddScoped<IAgentConversationService, AgentConversationService>();
+// Register agent service
+builder.Services.AddScoped<IAgentService, AgentService>();
+
+// Register thread service
+builder.Services.AddScoped<IThreadService, ThreadService>();
+
+// Register vector store service
+builder.Services.AddScoped<IVectorStoreService, VectorStoreService>();
+
+// Register dataset service
+builder.Services.AddScoped<IDatasetService, DatasetService>();
 
 var app = builder.Build();
 

@@ -14,6 +14,12 @@ public class AgentResponse
     public string AgentId { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets the thread ID (conversation ID).
+    /// </summary>
+    [JsonPropertyName("threadId")]
+    public string ThreadId { get; set; } = string.Empty;
+
+    /// <summary>
     /// Gets or sets the date and time when the response was created.
     /// </summary>
     [JsonPropertyName("createdAt")]

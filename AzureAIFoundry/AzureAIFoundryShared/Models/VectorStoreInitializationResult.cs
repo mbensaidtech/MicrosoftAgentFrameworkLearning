@@ -11,9 +11,9 @@ public class VectorStoreInitializationResult
     public string VectorStoreName { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the file ID that was uploaded and associated with the vector store.
+    /// Gets or sets the list of files that were uploaded and associated with the vector store.
     /// </summary>
-    public string FileId { get; set; } = string.Empty;
+    public List<VectorStoreFileResult> Files { get; set; } = new List<VectorStoreFileResult>();
 
     /// <summary>
     /// Gets or sets the vector store ID that was created.

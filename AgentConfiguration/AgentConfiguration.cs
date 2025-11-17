@@ -21,11 +21,6 @@ public class AgentConfiguration
     public Dictionary<string, AgentSettings> Agents { get; set; } = new();
 
     /// <summary>
-    /// Gets or sets the dictionary of vector store configurations, keyed by vector store name.
-    /// </summary>
-    public Dictionary<string, VectorStoreSettings> VectorStores { get; set; } = new();
-
-    /// <summary>
     /// Gets the actual deployment name from the environment variable.
     /// </summary>
     /// <returns>The deployment name value.</returns>
@@ -87,21 +82,6 @@ public class AgentConfiguration
     {
         var agentName = agentType.ToString();
         return GetAgent(agentName);
-    }
-
-    /// <summary>
-    /// Gets a vector store configuration by name.
-    /// </summary>
-    /// <param name="vectorStoreName">The name of the vector store.</param>
-    /// <returns>The vector store settings.</returns>
-    /// <exception cref="KeyNotFoundException">Thrown when the vector store is not found in the configuration.</exception>
-    public VectorStoreSettings GetVectorStore(string vectorStoreName)
-    {
-        if (!VectorStores.TryGetValue(vectorStoreName, out var vectorStoreSettings))
-        {
-            throw new KeyNotFoundException($"Vector store '{vectorStoreName}' is not found in the configuration.");
-        }
-        return vectorStoreSettings;
     }
 }
 
