@@ -71,7 +71,6 @@ public class DatasetsController : ControllerBase
                 return BadRequest("FilePath is required.");
             }
 
-            // Combine the Files folder with the provided file path
             string fullPath = Path.Combine(Directory.GetCurrentDirectory(), "Files", request.FilePath);
             
             if (!System.IO.File.Exists(fullPath))

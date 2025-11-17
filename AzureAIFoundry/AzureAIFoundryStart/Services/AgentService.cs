@@ -24,7 +24,6 @@ public class AgentService : IAgentService
     /// <inheritdoc/>
     public async Task<AgentInfo> CreateAgentAsync(AgentType agentType)
     {
-        // Pass null for agentId to ensure a new agent is always created
         var agent = await _persistentAgentsClientFacade.GetOrCreateAgentAsync(null, agentType);
 
         return new AgentInfo

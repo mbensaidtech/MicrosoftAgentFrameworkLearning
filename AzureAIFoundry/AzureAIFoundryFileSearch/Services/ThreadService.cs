@@ -38,7 +38,6 @@ public class ThreadService : IThreadService
     {
         SendMessageRequest.Validate(request);
 
-        // AgentType is only required when agentId is not provided (creating a new agent)
         if (string.IsNullOrWhiteSpace(request.Context?.AgentId) && request.Context?.AgentType == null)
         {
             throw new ArgumentException("AgentType must be set when agentId is not provided.", nameof(request));
@@ -52,7 +51,6 @@ public class ThreadService : IThreadService
         agentRunResponse.LogTokenUsage();
         await SaveThreadStateAsync(persistentAgent.Id, agentThread);
 
-        // Convert AgentRunResponse to AgentResponse using extension method, including threadId
         return agentRunResponse.ToAgentResponse(agentThread);
     }
 
@@ -66,17 +64,14 @@ public class ThreadService : IThreadService
     {
         if (!string.IsNullOrWhiteSpace(threadId))
         {
-            // Try to load from file using ThreadId
             var agentThread = await ResumeThreadFromFileAsync(agent.Id, threadId, agent);
             
-            // If found in file, return it
             if (agentThread != null)
             {
                 return agentThread;
             }
         }
 
-        // Create a new thread when ThreadId is not provided or not found in file
         return agent.GetNewThread();
     }
 
@@ -116,7 +111,6 @@ public class ThreadService : IThreadService
         string serializedJson = agentThread.Serialize(JsonSerializerOptions.Web).GetRawText();
         JsonElement jsonElement = JsonSerializer.Deserialize<JsonElement>(serializedJson, JsonSerializerOptions.Web);
         
-        // Extract threadId from the JSON (property name is conversationId in the JSON)
         string? threadId = null;
         if (jsonElement.TryGetProperty("conversationId", out var conversationIdElement))
         {
@@ -125,11 +119,9 @@ public class ThreadService : IThreadService
 
         if (string.IsNullOrWhiteSpace(threadId))
         {
-            // If no threadId, use a default filename
             threadId = "agent_thread";
         }
 
-        // Ensure the directory exists
         string directory = GetThreadStateDirectory(agentId);
         Directory.CreateDirectory(directory);
 
@@ -149,7 +141,6 @@ public class ThreadService : IThreadService
     {
         string directory = GetThreadStateDirectory(agentId);
         
-        // Try to find the file with the threadId
         string filePath = GetThreadStateFilePath(agentId, threadId);
         
         if (!File.Exists(filePath))
@@ -166,7 +157,6 @@ public class ThreadService : IThreadService
         }
         catch (Exception ex)
         {
-            // Log error and return null if deserialization fails
             WriteSecondaryLogLine($"Failed to resume thread {threadId} for agent {agentId}: {ex.Message}");
             return null;
         }

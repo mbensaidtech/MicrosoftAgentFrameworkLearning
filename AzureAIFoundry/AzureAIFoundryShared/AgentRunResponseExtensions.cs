@@ -63,7 +63,6 @@ public static class AgentRunResponseExtensions
 
         var response = agentRunResponse.ToAgentResponse();
         
-        // Extract threadId from the AgentThread
         if (agentThread != null)
         {
             response.ThreadId = ExtractThreadId(agentThread);
@@ -86,11 +85,9 @@ public static class AgentRunResponseExtensions
 
         try
         {
-            // Serialize the thread to JSON and extract conversationId
             string serializedJson = agentThread.Serialize(JsonSerializerOptions.Web).GetRawText();
             JsonElement jsonElement = JsonSerializer.Deserialize<JsonElement>(serializedJson, JsonSerializerOptions.Web);
             
-            // Extract threadId from the JSON (property name is conversationId in the JSON)
             if (jsonElement.TryGetProperty("conversationId", out var conversationIdElement))
             {
                 var threadId = conversationIdElement.GetString();
@@ -102,7 +99,6 @@ public static class AgentRunResponseExtensions
         }
         catch
         {
-            // If extraction fails, return empty string
         }
 
         return string.Empty;
@@ -156,7 +152,6 @@ public static class AgentRunResponseExtensions
                         textParts.Add(textValue);
                     }
                 }
-                // If no Text property, try ToString
                 else
                 {
                     var textValue = item.ToString();

@@ -27,7 +27,6 @@ public class PersistentAgentsClientFacade : IPersistentAgentsClientFacade
     {
         _agentConfig = agentConfig ?? throw new ArgumentNullException(nameof(agentConfig));
 
-        // Initialize Azure OpenAI client
         var credential = new DefaultAzureCredential(
             new DefaultAzureCredentialOptions { ExcludeAzureDeveloperCliCredential = false });
 
@@ -78,8 +77,6 @@ public class PersistentAgentsClientFacade : IPersistentAgentsClientFacade
     /// <returns>The response from the vector store creation.</returns>
     public async Task<Response<PersistentAgentsVectorStore>> CreateVectorStoreAsync(string name, string? description = null)
     {
-        // Check if the API supports description parameter
-        // If the SDK supports it, we'll use it; otherwise, we'll just use the name
         Response<PersistentAgentsVectorStore> vectorStore = await _persistentAgentsClient.VectorStores.CreateVectorStoreAsync(name: name);
         return vectorStore;
     }
@@ -109,13 +106,10 @@ public class PersistentAgentsClientFacade : IPersistentAgentsClientFacade
 
         Response<PersistentAgentsVectorStore> vectorStore;
         
-        // Use existing vector store if ID is provided, otherwise create a new one
         if (!string.IsNullOrWhiteSpace(request.VectorStoreId))
         {
-            // Get existing vector store
             vectorStore = await _persistentAgentsClient.VectorStores.GetVectorStoreAsync(request.VectorStoreId);
             
-            // Clean the vector store before uploading new file if requested
             if (request.CleanVectorStore)
             {
                 await CleanVectorStoreAsync(request.VectorStoreId, request.CleanVectorStoreAndRemoveFilesFromDatasets);
@@ -123,7 +117,6 @@ public class PersistentAgentsClientFacade : IPersistentAgentsClientFacade
         }
         else
         {
-            // Create new vector store - VectorStoreName is required
             if (string.IsNullOrWhiteSpace(request.VectorStoreName))
             {
                 throw new ArgumentException("VectorStoreName is required when creating a new vector store.", nameof(request));
@@ -131,7 +124,6 @@ public class PersistentAgentsClientFacade : IPersistentAgentsClientFacade
             vectorStore = await CreateVectorStoreAsync(request.VectorStoreName, request.VectorStoreDescription);
         }
 
-        // Upload all files and add them to the vector store
         var files = new List<Models.VectorStoreFileResult>();
         foreach (var fileInfo in request.Files)
         {
@@ -145,7 +137,6 @@ public class PersistentAgentsClientFacade : IPersistentAgentsClientFacade
             });
         }
 
-        // Always use the name from the vector store to ensure accuracy
         return new Models.VectorStoreInitializationResult
         {
             VectorStoreName = vectorStore.Value.Name ?? string.Empty,
@@ -183,7 +174,6 @@ public class PersistentAgentsClientFacade : IPersistentAgentsClientFacade
 
         Response<PersistentAgent> newPersistentAgent;
         
-        // Only include toolResources and tools if both are not null/empty
         bool hasToolResources = request.ToolResources != null;
         bool hasTools = request.Tools != null && request.Tools.Count > 0;
         
@@ -252,7 +242,6 @@ public class PersistentAgentsClientFacade : IPersistentAgentsClientFacade
     /// <returns>A tuple containing ToolResources and Tools, or null values if not configured.</returns>
     private (ToolResources? toolResources, List<ToolDefinition>? tools) CreateToolResourcesAndTools(AgentConfiguration.AgentSettings agentSettings)
     {
-        // If VectorStoreId is configured, create ToolResources and Tools
         if (string.IsNullOrWhiteSpace(agentSettings.Tools?.VectorStores?.VectorStoreId))
         {
             return (null, null);
@@ -378,24 +367,19 @@ public class PersistentAgentsClientFacade : IPersistentAgentsClientFacade
             throw new ArgumentException("Vector store ID cannot be null or empty.", nameof(vectorStoreId));
         }
 
-        // Get all files from the vector store
         var files = GetVectorStoreFiles(vectorStoreId);
 
-        // Delete each file
         foreach (var file in files)
         {
             if (!string.IsNullOrWhiteSpace(file.Id))
             {
                 if (removeFilesFromDatasets)
                 {
-                    // First, remove from vector store
                     await DeleteVectorStoreFileAsync(vectorStoreId, file.Id);
-                    // Then, remove from Datasets
                     await DeleteFileAsync(file.Id);
                 }
                 else
                 {
-                    // Only remove from vector store
                     await DeleteVectorStoreFileAsync(vectorStoreId, file.Id);
                 }
             }

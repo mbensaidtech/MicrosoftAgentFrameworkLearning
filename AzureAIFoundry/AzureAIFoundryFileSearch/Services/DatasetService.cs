@@ -36,7 +36,6 @@ public class DatasetService : IDatasetService
     /// <inheritdoc/>
     public async Task<PersistentAgentFileInfo> UploadFileAsync(string filePath)
     {
-        // Combine the Files folder with the provided file path
         string fullPath = Path.Combine(Directory.GetCurrentDirectory(), "Files", filePath);
         
         var response = await _persistentAgentsClientFacade.UploadFileAsync(fullPath);
