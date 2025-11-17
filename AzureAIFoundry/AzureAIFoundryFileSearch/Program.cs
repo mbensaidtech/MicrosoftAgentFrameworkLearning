@@ -12,20 +12,20 @@ builder.Services.AddControllers();
 // Add agent configuration from appsettings.json
 builder.Services.AddAgentConfiguration(builder.Configuration);
 
-// Register persistent agents client facade
-builder.Services.AddScoped<IPersistentAgentsClientFacade, PersistentAgentsClientFacade>();
+// Register persistent agents client facade as singleton (Azure SDK clients are thread-safe and stateless)
+builder.Services.AddSingleton<IPersistentAgentsClientFacade, PersistentAgentsClientFacade>();
 
-// Register agent service
-builder.Services.AddScoped<IAgentService, AgentService>();
+// Register agent service as singleton (stateless service)
+builder.Services.AddSingleton<IAgentService, AgentService>();
 
-// Register thread service
-builder.Services.AddScoped<IThreadService, ThreadService>();
+// Register thread service as singleton (stateless service)
+builder.Services.AddSingleton<IThreadService, ThreadService>();
 
-// Register vector store service
-builder.Services.AddScoped<IVectorStoreService, VectorStoreService>();
+// Register vector store service as singleton (stateless service)
+builder.Services.AddSingleton<IVectorStoreService, VectorStoreService>();
 
-// Register dataset service
-builder.Services.AddScoped<IDatasetService, DatasetService>();
+// Register dataset service as singleton (stateless service)
+builder.Services.AddSingleton<IDatasetService, DatasetService>();
 
 var app = builder.Build();
 
