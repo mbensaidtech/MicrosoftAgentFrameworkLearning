@@ -1,4 +1,5 @@
 using AgentConfiguration;
+using AgentConfig = AgentConfiguration.AgentConfiguration;
 using AzureAIFoundryShared;
 using AzureAIFoundryShared.Models;
 using Microsoft.Agents.AI;
@@ -13,32 +14,36 @@ using static CommonUtilities.ColoredConsole;
 namespace AzureAIFoundryStart.Services;
 
 /// <summary>
-/// Service for agent conversations.
+/// Service for thread management and conversations.
 /// </summary>
-public class AgentConversationService : IAgentConversationService
+public class ThreadService : IThreadService
 {
     private readonly IPersistentAgentsClientFacade _persistentAgentsClientFacade;
+    private readonly AgentConfig _agentConfig;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AgentConversationService"/> class.
+    /// Initializes a new instance of the <see cref="ThreadService"/> class.
     /// </summary>
     /// <param name="persistentAgentsClientFacade">The persistent agents client facade.</param>
-    public AgentConversationService(IPersistentAgentsClientFacade persistentAgentsClientFacade)
+    /// <param name="agentConfig">The agent configuration.</param>
+    public ThreadService(IPersistentAgentsClientFacade persistentAgentsClientFacade, AgentConfig agentConfig)
     {
         _persistentAgentsClientFacade = persistentAgentsClientFacade ?? throw new ArgumentNullException(nameof(persistentAgentsClientFacade));
+        _agentConfig = agentConfig ?? throw new ArgumentNullException(nameof(agentConfig));
     }
 
     /// <inheritdoc/>
     public async Task<AgentResponse> SendMessageAsync(SendMessageRequest request)
     {
-        if (request.Context?.AgentType == null)
-        {
-            throw new ArgumentException("AgentType must be set in request.Context.AgentType.", nameof(request));
-        }
-
         SendMessageRequest.Validate(request);
 
-        var agentType = request.Context.AgentType.Value;
+        // AgentType is only required when agentId is not provided (creating a new agent)
+        if (string.IsNullOrWhiteSpace(request.Context?.AgentId) && request.Context?.AgentType == null)
+        {
+            throw new ArgumentException("AgentType must be set when agentId is not provided.", nameof(request));
+        }
+
+        var agentType = request.Context?.AgentType;
         var persistentAgent = await _persistentAgentsClientFacade.GetOrCreateAgentAsync(request.Context?.AgentId, agentType);
         var agentThread = await CreateOrResumeAgentThreadAsync(persistentAgent, request.Context?.ThreadId);
 
@@ -96,16 +101,14 @@ public class AgentConversationService : IAgentConversationService
     private string GetThreadStateFilePath(string agentId, string threadId)
     {
         string directory = GetThreadStateDirectory(agentId);
-        string fileName = $"{threadId}.json";
-        return Path.Combine(directory, fileName);
+        return Path.Combine(directory, $"{threadId}.json");
     }
 
     /// <summary>
-    /// Serializes and saves the thread state to a local file using threadId as filename.
-    /// Structure: AgentsThreads/{agentId}/Threads/{threadId}.json
+    /// Saves the thread state to a JSON file for persistence.
     /// </summary>
     /// <param name="agentId">The agent ID.</param>
-    /// <param name="agentThread">The agent thread to serialize and save.</param>
+    /// <param name="agentThread">The agent thread to save.</param>
     /// <remarks>This is an example implementation. Replace with DB or blob storage in production.</remarks>
     private async Task SaveThreadStateAsync(string agentId, AgentThread agentThread)
     {
@@ -145,11 +148,7 @@ public class AgentConversationService : IAgentConversationService
     {
         string directory = GetThreadStateDirectory(agentId);
         
-        if (!Directory.Exists(directory))
-        {
-            return null;
-        }
-
+        // Try to find the file with the threadId
         string filePath = GetThreadStateFilePath(agentId, threadId);
         
         if (!File.Exists(filePath))
@@ -164,8 +163,10 @@ public class AgentConversationService : IAgentConversationService
             AgentThread resumedThread = agent.DeserializeThread(reloaded, JsonSerializerOptions.Web);
             return resumedThread;
         }
-        catch
+        catch (Exception ex)
         {
+            // Log error and return null if deserialization fails
+            WriteSecondaryLogLine($"Failed to resume thread {threadId} for agent {agentId}: {ex.Message}");
             return null;
         }
     }

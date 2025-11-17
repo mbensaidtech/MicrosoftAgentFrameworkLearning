@@ -14,8 +14,11 @@ builder.Services.AddAgentConfiguration(builder.Configuration);
 // Register persistent agents client facade
 builder.Services.AddScoped<IPersistentAgentsClientFacade, PersistentAgentsClientFacade>();
 
-// Register agent conversation service
-builder.Services.AddScoped<IAgentConversationService, AgentConversationService>();
+// Register agent service
+builder.Services.AddScoped<IAgentService, AgentService>();
+
+// Register thread service
+builder.Services.AddScoped<IThreadService, ThreadService>();
 
 var app = builder.Build();
 

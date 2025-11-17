@@ -1,13 +1,12 @@
-using AgentConfiguration;
 using AzureAIFoundryShared.Models;
 using AzureAIFoundryStart.Models;
 
 namespace AzureAIFoundryStart.Services;
 
 /// <summary>
-/// Interface for agent conversation service.
+/// Interface for thread management service.
 /// </summary>
-public interface IAgentConversationService
+public interface IThreadService
 {
     /// <summary>
     /// Sends a message to an agent and gets a response. The agent type is read from request.Context.AgentType.
