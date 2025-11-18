@@ -19,6 +19,14 @@ public interface IPersistentAgentsClientFacade
     Task<AIAgent> GetOrCreateAgentAsync(string? agentId, AgentConfiguration.AgentType? agentType);
 
     /// <summary>
+    /// Gets a ChatClientAgent by its ID, or creates a new agent if the ID is not provided.
+    /// </summary>
+    /// <param name="agentId">The ID of the agent to retrieve. If null, a new agent will be created.</param>
+    /// <param name="agentType">The type of agent to create. Required when agentId is null.</param>
+    /// <returns>The ChatClientAgent.</returns>
+    Task<ChatClientAgent> GetOrCreateChatClientAgentAsync(string? agentId, AgentConfiguration.AgentType? agentType);
+
+    /// <summary>
     /// Uploads a file to azure ai foundry.
     /// </summary>
     /// <param name="filePath">The path to the file to upload. The filename will be extracted from the file path.</param>
