@@ -28,6 +28,11 @@ public enum AgentType
     /// <summary>
     /// Product search agent - specialized in searching for products in the products vector store.
     /// </summary>
-    ProductSearchAgent
+    ProductSearchAgent,
+
+    /// <summary>
+    /// Book recommendation agent - provides structured book recommendations with detailed information.
+    /// </summary>
+    BookRecommendationAgent
 }
 
