@@ -32,7 +32,6 @@ public class ThreadService : IThreadService
         _agentConfig = agentConfig ?? throw new ArgumentNullException(nameof(agentConfig));
     }
 
-
     /// <inheritdoc/>
     public async Task<AgentResponse> SendMessageAsync(SendMessageRequest request)
     {
