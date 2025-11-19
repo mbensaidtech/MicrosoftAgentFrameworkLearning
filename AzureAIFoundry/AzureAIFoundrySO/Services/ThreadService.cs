@@ -33,7 +33,7 @@ public class ThreadService : IThreadService
     }
 
     /// <inheritdoc/>
-    public async Task<BookRecommendationAgentResponse> SendMessageAsync(SendMessageRequest request)
+    public async Task<StructuredAgentResponse<T>> SendMessageAsync<T>(SendMessageRequest request)
     {
         SendMessageRequest.Validate(request);
 
@@ -46,21 +46,26 @@ public class ThreadService : IThreadService
         var persistentAgent = await _persistentAgentsClientFacade.GetOrCreateChatClientAgentAsync(request.Context?.AgentId, agentType);
         var agentThread = await CreateOrResumeAgentThreadAsync(persistentAgent, request.Context?.ThreadId);
 
-        AgentRunResponse<BookRecommendationResponse> agentRunResponse = await persistentAgent.RunAsync<BookRecommendationResponse>(request.Message, agentThread);
+        AgentRunResponse<T> agentRunResponse = await persistentAgent.RunAsync<T>(request.Message, agentThread);
         agentRunResponse.LogTokenUsage();
         await SaveThreadStateAsync(persistentAgent.Id, agentThread);
 
         var structuredOutput = agentRunResponse.Result;
         
-        return ConvertToBookRecommendationAgentResponse(agentRunResponse, agentThread, structuredOutput);
+        return ConvertToStructuredAgentResponse(agentRunResponse, agentThread, structuredOutput);
     }
 
     /// <summary>
-    /// Converts an AgentRunResponse with BookRecommendationResponse to BookRecommendationAgentResponse.
+    /// Converts an AgentRunResponse with structured output type T to StructuredAgentResponse.
     /// </summary>
-    private BookRecommendationAgentResponse ConvertToBookRecommendationAgentResponse(AgentRunResponse<BookRecommendationResponse> agentRunResponse, AgentThread agentThread, BookRecommendationResponse? structuredOutput)
+    /// <typeparam name="T">The type of structured output.</typeparam>
+    /// <param name="agentRunResponse">The agent run response.</param>
+    /// <param name="agentThread">The agent thread.</param>
+    /// <param name="structuredOutput">The structured output result.</param>
+    /// <returns>A StructuredAgentResponse containing the converted data.</returns>
+    private StructuredAgentResponse<T> ConvertToStructuredAgentResponse<T>(AgentRunResponse<T> agentRunResponse, AgentThread agentThread, T? structuredOutput)
     {
-        var response = new BookRecommendationAgentResponse
+        var response = new StructuredAgentResponse<T>
         {
             AgentId = agentRunResponse.AgentId ?? string.Empty,
             CreatedAt = agentRunResponse.CreatedAt?.DateTime ?? DateTime.UtcNow,
@@ -73,17 +78,16 @@ public class ThreadService : IThreadService
                     ? agentRunResponse.Usage.AdditionalCounts.ToDictionary(kvp => kvp.Key, kvp => (int)kvp.Value)
                     : null
             } : null,
-            Messages = agentRunResponse.Messages?.Select(msg => new BookRecommendationMessage
+            Messages = agentRunResponse.Messages?.Select(msg => new StructuredMessage<T>
             {
                 AuthorName = msg.AuthorName ?? string.Empty,
                 CreatedAt = msg.CreatedAt?.DateTime ?? DateTime.UtcNow,
                 Role = MapMessageRole(msg.Role.ToString()),
                 MessageId = msg.MessageId ?? string.Empty,
-                BookRecommendations = msg.Role.ToString().ToLowerInvariant() == "assistant" ? structuredOutput : null
-            }).ToList() ?? new List<BookRecommendationMessage>()
+                StructuredOutput = msg.Role.ToString().ToLowerInvariant() == "assistant" ? structuredOutput : default(T?)
+            }).ToList() ?? new List<StructuredMessage<T>>()
         };
 
-        // Extract thread ID
         if (agentThread != null)
         {
             response.ThreadId = ExtractThreadId(agentThread);
@@ -164,7 +168,6 @@ public class ThreadService : IThreadService
 
     /// <summary>
     /// Gets the directory path for thread state files for a specific agent.
-    /// Structure: AgentsThreads/{agentId}/Threads/
     /// </summary>
     /// <param name="agentId">The agent ID.</param>
     /// <returns>The directory path for the agent's threads.</returns>
@@ -176,7 +179,6 @@ public class ThreadService : IThreadService
 
     /// <summary>
     /// Gets the file path for storing the thread state based on agentId and threadId.
-    /// Structure: AgentsThreads/{agentId}/Threads/{threadId}.json
     /// </summary>
     /// <param name="agentId">The agent ID.</param>
     /// <param name="threadId">The thread ID to use as the filename.</param>
@@ -192,7 +194,6 @@ public class ThreadService : IThreadService
     /// </summary>
     /// <param name="agentId">The agent ID.</param>
     /// <param name="agentThread">The agent thread to save.</param>
-    /// <remarks>This is an example implementation. Replace with DB or blob storage in production.</remarks>
     private async Task SaveThreadStateAsync(string agentId, AgentThread agentThread)
     {
         string serializedJson = agentThread.Serialize(JsonSerializerOptions.Web).GetRawText();
@@ -248,5 +249,6 @@ public class ThreadService : IThreadService
             return null;
         }
     }
+
 }
 

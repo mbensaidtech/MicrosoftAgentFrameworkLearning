@@ -4,9 +4,10 @@ using AzureAIFoundryShared.Models;
 namespace AzureAIFoundrySO.Models;
 
 /// <summary>
-/// Represents the response from a book recommendation agent conversation.
+/// Represents the response from an agent conversation with structured output.
 /// </summary>
-public class BookRecommendationAgentResponse
+/// <typeparam name="T">The type of structured output expected from the agent.</typeparam>
+public class StructuredAgentResponse<T>
 {
     /// <summary>
     /// Gets or sets the agent ID.
@@ -27,10 +28,10 @@ public class BookRecommendationAgentResponse
     public DateTime CreatedAt { get; set; }
 
     /// <summary>
-    /// Gets or sets the list of messages with book recommendations in the response.
+    /// Gets or sets the list of messages with structured output in the response.
     /// </summary>
     [JsonPropertyName("messages")]
-    public List<BookRecommendationMessage> Messages { get; set; } = new();
+    public List<StructuredMessage<T>> Messages { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the token usage information.

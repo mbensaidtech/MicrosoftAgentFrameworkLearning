@@ -4,9 +4,10 @@ using AzureAIFoundryShared.Models;
 namespace AzureAIFoundrySO.Models;
 
 /// <summary>
-/// Represents a message in a conversation with book recommendations instead of text content.
+/// Represents a message in a conversation with structured output.
 /// </summary>
-public class BookRecommendationMessage
+/// <typeparam name="T">The type of structured output.</typeparam>
+public class StructuredMessage<T>
 {
     /// <summary>
     /// Gets or sets the name of the message author.
@@ -33,9 +34,9 @@ public class BookRecommendationMessage
     public string MessageId { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the book recommendations for this message.
+    /// Gets or sets the structured output for this message.
     /// </summary>
-    [JsonPropertyName("bookRecommendations")]
-    public BookRecommendationResponse? BookRecommendations { get; set; }
+    [JsonPropertyName("structuredOutput")]
+    public T? StructuredOutput { get; set; }
 }
 

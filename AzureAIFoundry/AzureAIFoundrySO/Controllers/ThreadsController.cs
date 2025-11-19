@@ -26,9 +26,9 @@ public class ThreadsController : ControllerBase
     /// Creates a new conversation (thread) for an agent and sends the first message.
     /// </summary>
     /// <param name="request">The request containing the agent ID and message.</param>
-    /// <returns>The agent's response with book recommendations.</returns>
+    /// <returns>The agent's response with structured output.</returns>
     [HttpPost]
-    public async Task<ActionResult<BookRecommendationAgentResponse>> CreateThread([FromBody] CreateThreadRequest request)
+    public async Task<ActionResult<StructuredAgentResponse<BookRecommendationResponse>>> CreateThread([FromBody] CreateThreadRequest request)
     {
         try
         {
@@ -51,7 +51,7 @@ public class ThreadsController : ControllerBase
                 }
             };
 
-            var agentMessage = await _threadService.SendMessageAsync(sendMessageRequest);
+            var agentMessage = await _threadService.SendMessageAsync<BookRecommendationResponse>(sendMessageRequest);
             return Ok(agentMessage);
         }
         catch (Exception ex)
@@ -65,9 +65,9 @@ public class ThreadsController : ControllerBase
     /// </summary>
     /// <param name="threadId">The ID of the existing thread (conversation).</param>
     /// <param name="request">The request containing the agent ID and message.</param>
-    /// <returns>The agent's response with book recommendations.</returns>
+    /// <returns>The agent's response with structured output.</returns>
     [HttpPost("{threadId}/messages")]
-    public async Task<ActionResult<BookRecommendationAgentResponse>> AddMessage(string threadId, [FromBody] AddMessageRequest request)
+    public async Task<ActionResult<StructuredAgentResponse<BookRecommendationResponse>>> AddMessage(string threadId, [FromBody] AddMessageRequest request)
     {
         try
         {
@@ -91,7 +91,7 @@ public class ThreadsController : ControllerBase
                 }
             };
 
-            var agentMessage = await _threadService.SendMessageAsync(sendMessageRequest);
+            var agentMessage = await _threadService.SendMessageAsync<BookRecommendationResponse>(sendMessageRequest);
             return Ok(agentMessage);
         }
         catch (Exception ex)
