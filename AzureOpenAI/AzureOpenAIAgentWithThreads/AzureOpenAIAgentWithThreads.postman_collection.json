@@ -1,0 +1,138 @@
+{
+	"info": {
+		"_postman_id": "azure-openai-agent-with-threads",
+		"name": "Azure OpenAI Agent With Threads",
+		"description": "Postman collection for testing Azure OpenAI Agent With Threads API.\n\n**Features:**\n- Thread support for conversation continuity - maintain context across multiple interactions\n- Vector store integration (InMemory or MongoDB) for enhanced context and conversation history\n- Singleton GlobalAgent created at startup with configurable instructions\n\n**Configuration:**\n- Vector store can be configured as InMemory (default) or MongoDB\n- MongoDB configuration is optional in appsettings.json under VectorStore:MongoDb\n- Agent configuration is defined in appsettings.json under AgentConfiguration\n\n**Endpoints:**\n- POST /api/agents/ask - Send questions to the agent with optional threadId for conversation continuity",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Agents",
+			"item": [
+				{
+					"name": "Ask Question (New Conversation)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"What are programming languages that we can find in Microsoft .NET?\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/agents/ask",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"agents",
+								"ask"
+							]
+						},
+						"description": "Sends a question to the AI agent and starts a new conversation thread. The agent is a singleton GlobalAgent created at startup with vector store support (InMemory by default, or MongoDB if configured).\n\n**Request Body:**\n- `question` (required, string): The question or message to send to the agent\n- `threadId` (optional, string): Thread ID to continue an existing conversation. If not provided, a new conversation thread is created.\n- `agentType` (optional, AgentType enum): Currently not used, as the agent is pre-configured as GlobalAgent\n\n**Response:**\nReturns an AgentResponse containing:\n- `agentId`: The agent identifier\n- `threadId`: The conversation thread ID (use this to continue the conversation in subsequent requests)\n- `createdAt`: Timestamp of the response\n- `messages`: Array of messages in the conversation (includes both user and assistant messages)\n- `usage`: Token usage information (inputTokenCount, outputTokenCount, totalTokenCount)\n\n**Note:** The threadId in the response should be saved and used in subsequent requests to maintain conversation context."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"question\": \"What are programming languages that we can find in Microsoft .NET?\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/agents/ask",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"agents",
+										"ask"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"agentId\": \"\",\n  \"threadId\": \"conversation_abc123\",\n  \"createdAt\": \"2025-01-13T14:00:00Z\",\n  \"messages\": [\n    {\n      \"authorName\": \"GlobalAgent\",\n      \"createdAt\": \"2025-01-13T14:00:00Z\",\n      \"role\": \"User\",\n      \"messageId\": \"msg_abc123\",\n      \"content\": \"What are programming languages that we can find in Microsoft .NET?\"\n    },\n    {\n      \"authorName\": \"GlobalAgent\",\n      \"createdAt\": \"2025-01-13T14:00:01Z\",\n      \"role\": \"Assistant\",\n      \"messageId\": \"msg_def456\",\n      \"content\": \"Microsoft .NET supports multiple programming languages. The primary languages include C#, F#, and Visual Basic .NET (VB.NET). C# is the most widely used and popular language in the .NET ecosystem, offering modern features and strong typing. F# is a functional-first programming language that brings functional programming paradigms to .NET. VB.NET provides a more traditional, beginner-friendly syntax. All these languages compile to the same Intermediate Language (IL) and can interoperate seamlessly within the .NET runtime.\"\n    }\n  ],\n  \"usage\": {\n    \"inputTokenCount\": 8,\n    \"outputTokenCount\": 75,\n    \"totalTokenCount\": 83\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Ask Question (Continue Conversation)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"Between them, what is the most popular language?\",\n  \"threadId\": \"conversation_abc123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/agents/ask",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"agents",
+								"ask"
+							]
+						},
+						"description": "Continues an existing conversation by providing the threadId from a previous response. The agent will have full context from all previous messages in the thread, enabling natural conversation flow.\n\n**How to use:**\n1. Make a request to \"Ask Question (New Conversation)\"\n2. Copy the `threadId` from the response\n3. Use that `threadId` in this request's body\n4. The agent will remember the entire conversation history\n\n**Request Body:**\n- `question` (required, string): Your follow-up question or message\n- `threadId` (required, string): The thread ID from a previous conversation response\n\n**Note:** The threadId enables conversation continuity. Without it, each request starts a new conversation."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoint for asking questions to the AI agent with thread support for conversation continuity.\n\n**POST /api/agents/ask**\n\nSends a question and receives a response from the singleton GlobalAgent created at startup. The agent supports:\n- **Thread-based conversations**: Use the `threadId` from a response to continue the conversation\n- **Vector store integration**: Enhanced context and conversation history storage (InMemory or MongoDB)\n- **Token usage tracking**: Monitor API usage with detailed token counts\n\n**Vector Store Configuration:**\n- Default: InMemory vector store (no persistence)\n- Optional: MongoDB vector store (configured in appsettings.json under VectorStore:MongoDb)\n  - Requires ConnectionString and DatabaseName\n  - If configured, conversation history is persisted in MongoDB"
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5071",
+			"type": "string",
+			"description": "Base URL for the API. Default is http://localhost:5071 (matches launchSettings.json). Update this if your API is running on a different port or host. The API also supports HTTPS on port 7288."
+		}
+	]
+}

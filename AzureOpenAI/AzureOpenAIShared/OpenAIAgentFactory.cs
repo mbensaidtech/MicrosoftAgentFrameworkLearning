@@ -6,6 +6,12 @@ using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.OpenAI;
 using OpenAI.Chat;
 using OpenAI;
+using Microsoft.SemanticKernel.Connectors.InMemory;
+using Microsoft.SemanticKernel.Connectors.MongoDB;
+using Microsoft.Extensions.VectorData;
+using Microsoft.Extensions.AI;
+using AzureOpenAIShared.Stores;
+using MongoDB.Driver;
 
 namespace AzureOpenAIShared;
 
@@ -16,14 +22,17 @@ public class OpenAIAgentFactory : IOpenAIAgentFactory
 {
     private readonly ChatClient _chatClient;
     private readonly AgentConfig _agentConfig;
+    private readonly IMongoDatabase? _mongoDatabase;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="OpenAIAgentFactory"/> class.
     /// </summary>
     /// <param name="agentConfig">The agent configuration containing endpoint and deployment information.</param>
-    public OpenAIAgentFactory(AgentConfig agentConfig)
+    /// <param name="mongoDatabase">Optional MongoDB database instance for vector store operations.</param>
+    public OpenAIAgentFactory(AgentConfig agentConfig, IMongoDatabase? mongoDatabase = null)
     {
         _agentConfig = agentConfig ?? throw new ArgumentNullException(nameof(agentConfig));
+        _mongoDatabase = mongoDatabase;
 
         var credential = new DefaultAzureCredential(
             new DefaultAzureCredentialOptions { ExcludeAzureDeveloperCliCredential = false });
@@ -31,25 +40,17 @@ public class OpenAIAgentFactory : IOpenAIAgentFactory
         var endpoint = new Uri(_agentConfig.GetEndpoint());
         var azureOpenAIClient = new AzureOpenAIClient(endpoint, credential);
         
-        // Create the ChatClient once in the constructor since it will always be the same
         var deploymentName = _agentConfig.GetDeploymentName();
         _chatClient = azureOpenAIClient.GetChatClient(deploymentName);
     }
 
     /// <summary>
-    /// Creates a basic AIAgent with instructions and name based on the specified agent type.
+    /// Creates a basic AIAgent.
     /// </summary>
-    /// <param name="agentType">The type of agent to create, which determines the configuration to use.</param>
     /// <returns>The created AIAgent.</returns>
-    public AIAgent CreateBasicAIAgent(AgentType agentType)
-    {
-        var agentSettings = _agentConfig.GetAgent(agentType);
-        
-        var agent = _chatClient.CreateAIAgent(
-            instructions: agentSettings.Instructions,
-            name: agentSettings.Name);
-        
-        return agent;
+    public AIAgent CreateBasicAIAgent()
+    {  
+        return _chatClient.CreateAIAgent();
     }
 
     /// <summary>
@@ -64,6 +65,35 @@ public class OpenAIAgentFactory : IOpenAIAgentFactory
         var agent = _chatClient.CreateAIAgent(
             instructions: agentSettings.Instructions,
             name: agentSettings.Name);
+        
+        return agent;
+    }
+
+    public AIAgent CreateAgentWithVectorStore(AgentType agentType, VectorStoresTypes vectorStoreType)
+    {
+        var agentSettings = _agentConfig.GetAgent(agentType);
+        VectorStore vectorStore = vectorStoreType switch
+        {
+            VectorStoresTypes.InMemory => new InMemoryVectorStore(),
+            VectorStoresTypes.Mongo => _mongoDatabase == null 
+                ? throw new InvalidOperationException("MongoDB database is required for Mongo vector store type but was not provided.")
+                : new MongoVectorStore(_mongoDatabase),
+            _ => throw new ArgumentException($"Unknown vector store type: {vectorStoreType}", nameof(vectorStoreType))
+        };
+        
+        var orchestratorOptions = new ChatClientAgentOptions
+        {
+            Instructions = agentSettings.Instructions,
+            Name = agentSettings.Name,
+            ChatMessageStoreFactory = ctx =>
+            {
+                return new Stores.VectorChatMessageStore(
+                    vectorStore,
+                    ctx.SerializedState,
+                    ctx.JsonSerializerOptions);
+            }
+        };
+        var agent = _chatClient.CreateAIAgent(orchestratorOptions);
         
         return agent;
     }
