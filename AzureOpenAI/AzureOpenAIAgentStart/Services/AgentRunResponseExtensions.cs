@@ -84,7 +84,7 @@ public static class AgentRunResponseExtensions
                 if (item == null)
                     continue;
 
-                // Try to get Text property using reflection
+
                 var textProperty = item.GetType().GetProperty("Text");
                 if (textProperty != null)
                 {
@@ -108,7 +108,7 @@ public static class AgentRunResponseExtensions
         }
         catch
         {
-            // Fallback to ToString if dynamic access fails
+
             return contents?.ToString() ?? string.Empty;
         }
     }
