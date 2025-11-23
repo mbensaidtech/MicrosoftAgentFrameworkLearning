@@ -1,0 +1,6 @@
+@AzureOpenAIAgentStart_HostAddress = http://localhost:5241
+
+GET {{AzureOpenAIAgentStart_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
