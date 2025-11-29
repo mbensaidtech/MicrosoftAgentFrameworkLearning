@@ -1,0 +1,94 @@
+{
+	"info": {
+		"_postman_id": "azure-openai-agent-with-function-tools",
+		"name": "Azure OpenAI Agent With Function Tools",
+		"description": "Postman collection for testing Azure OpenAI Agent With Function Tools API.\n\n**Features:**\n- AI agent with custom function tools (CustomerTools)\n- Methods for customer operations (edit personal info, address, payment, preferences)\n- Singleton GlobalAgent created at startup with tools\n\n**Available Tools:**\n- EditPersonalInformation: Edit customer's personal information\n- EditAddress: Update customer's address\n- UpdatePaymentMethod: Update payment method\n- UpdateSubscriptionPreferences: Update notification preferences\n\n**Configuration:**\n- Agent configuration is defined in appsettings.json under AgentConfiguration\n- Tools are automatically discovered from CustomerTools class\n\n**Endpoints:**\n- POST /api/agents/ask - Send questions to the agent with function tools",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Agents",
+			"item": [
+				{
+					"name": "Ask - Update Customer Profile (Multiple Tools)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"For customer CUST001, please update their personal information: change the email to john.doe@example.com and phone number to 5551234567. Also update their address to 123 Main Street, New York, NY 10001, USA\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/agents/ask",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"agents",
+								"ask"
+							]
+						},
+						"description": "This request requires the agent to use multiple tools: EditPersonalInformation and EditAddress.\n\nThe agent will need to:\n1. Call EditPersonalInformation to update the email and phone number\n2. Call EditAddress to update the address information\n\n**Request Body:**\n- `question` (required, string): The question or instruction to send to the agent\n\n**Expected Tools Used:**\n- EditPersonalInformation\n- EditAddress\n\n**Response:**\nReturns an AgentResponse containing:\n- `agentId`: The agent identifier\n- `createdAt`: Timestamp of the response\n- `messages`: Array of messages including tool calls and responses\n- `usage`: Token usage information"
+					},
+					"response": []
+				},
+				{
+					"name": "Ask - Complete Customer Setup (Multiple Tools)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"For customer CUST002, set up their payment method as CreditCard with details ending in 4567, and configure their subscription preferences: enable email notifications, disable SMS notifications, and enable marketing emails\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/agents/ask",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"agents",
+								"ask"
+							]
+						},
+						"description": "This request requires the agent to use multiple tools: UpdatePaymentMethod and UpdateSubscriptionPreferences.\n\nThe agent will need to:\n1. Call UpdatePaymentMethod to set up the payment method\n2. Call UpdateSubscriptionPreferences to configure notification settings\n\n**Request Body:**\n- `question` (required, string): The question or instruction to send to the agent\n\n**Expected Tools Used:**\n- UpdatePaymentMethod\n- UpdateSubscriptionPreferences\n\n**Response:**\nReturns an AgentResponse containing:\n- `agentId`: The agent identifier\n- `createdAt`: Timestamp of the response\n- `messages`: Array of messages including tool calls and responses\n- `usage`: Token usage information"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoint for asking questions to the AI agent with function tools.\n\n**POST /api/agents/ask**\n\nSends a question and receives a response from the GlobalAgent created at startup with CustomerTools function tools. The agent can:\n- **Use function tools**: Automatically call appropriate tools based on the request\n- **Perform multiple operations**: Chain multiple tool calls in a single request\n- **Token usage tracking**: Monitor API usage with detailed token counts\n\n**Available Tools:**\n- EditPersonalInformation\n- EditAddress\n- UpdatePaymentMethod\n- UpdateSubscriptionPreferences\n\n**Note:** These requests are designed to trigger multiple tool calls in a single agent interaction."
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5144",
+			"type": "string",
+			"description": "Base URL for the API. Default is http://localhost:5144 (matches launchSettings.json). Update this if your API is running on a different port or host. The API also supports HTTPS on port 7130."
+		}
+	]
+}

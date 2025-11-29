@@ -1,10 +1,14 @@
 using AgentConfiguration;
 using AgentConfig = AgentConfiguration.AgentConfiguration;
-using AzureOpenAIAgentStart.Models;
+using AzureOpenAIAgentWithFunctionTools.Models;
+using AzureOpenAIAgentWithFunctionTools.Tools;
 using AzureOpenAIShared;
 using Microsoft.Agents.AI;
+using Microsoft.Extensions.AI;
+using static CommonUtilities.ColoredConsole;
+using System.Text.Json;
 
-namespace AzureOpenAIAgentStart.Services;
+namespace AzureOpenAIAgentWithFunctionTools.Services;
 
 /// <summary>
 /// Service for agent interactions.
@@ -32,9 +36,15 @@ public class AgentService : IAgentService
         }
 
         _agentConfig = agentConfig;
+
+        var customerTools = new CustomerTools();
+        var tools = customerTools.CreateAIToolsFromInstance();
+
         var request = new CreateAdvancedAIAgentRequest
         {
-            AgentType = AgentType.GlobalAgent
+            AgentType = AgentType.GlobalAgent,
+            Tools = tools,
+            EnableFunctionCallMiddleware = true
         };
         _agent = openAIAgentFactory.CreateAdvancedAIAgent(request);
     }
@@ -51,10 +61,19 @@ public class AgentService : IAgentService
             throw new ArgumentException("Message cannot be null or empty.", nameof(message));
         }
 
-        
         var agentRunResponse = await _agent.RunAsync(message);
         agentRunResponse.LogTokenUsage();
+
+        var jsonOptions = new JsonSerializerOptions
+        {
+            WriteIndented = true
+        };
+        var jsonResponse = JsonSerializer.Serialize(agentRunResponse, jsonOptions);
+        WritePrimaryLogLine("AgentRunResponse Content:");
+        WriteAssistantLine(jsonResponse);
+      
         AgentResponse response = agentRunResponse.ToAgentResponse();
         return response;
     }
 }
+

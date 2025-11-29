@@ -12,6 +12,7 @@ using Microsoft.Extensions.VectorData;
 using Microsoft.Extensions.AI;
 using AzureOpenAIShared.Stores;
 using MongoDB.Driver;
+using AzureOpenAIShared.Middleware;
 
 namespace AzureOpenAIShared;
 
@@ -55,18 +56,41 @@ public class OpenAIAgentFactory : IOpenAIAgentFactory
 
     /// <summary>
     /// Creates an advanced AIAgent with instructions and name based on the specified agent type.
+    /// Optionally includes tools and applies function call middleware.
     /// </summary>
-    /// <param name="agentType">The type of agent to create, which determines the configuration to use.</param>
+    /// <param name="request">The request containing agent type and optional tools.</param>
     /// <returns>The created AIAgent.</returns>
-    public AIAgent CreateAdvancedAIAgent(AgentType agentType)
+    public AIAgent CreateAdvancedAIAgent(CreateAdvancedAIAgentRequest request)
     {
-        var agentSettings = _agentConfig.GetAgent(agentType);
+        if (request == null)
+        {
+            throw new ArgumentNullException(nameof(request));
+        }
+
+        var agentSettings = _agentConfig.GetAgent(request.AgentType);
         
-        var agent = _chatClient.CreateAIAgent(
-            instructions: agentSettings.Instructions,
-            name: agentSettings.Name);
-        
-        return agent;
+        if (request.Tools != null && request.Tools.Count > 0)
+        {
+            var agentBuilder = _chatClient.CreateAIAgent(
+                instructions: agentSettings.Instructions,
+                name: agentSettings.Name,
+                tools: request.Tools)
+                .AsBuilder();
+
+            if (request.EnableFunctionCallMiddleware)
+            {
+                agentBuilder = agentBuilder.Use(FunctionCallMiddleware.OnFunctionCall);
+            }
+
+            return agentBuilder.Build();
+        }
+        else
+        {
+            var agent = _chatClient.CreateAIAgent(
+                instructions: agentSettings.Instructions,
+                name: agentSettings.Name);
+            return agent;
+        }
     }
 
     public AIAgent CreateAgentWithVectorStore(AgentType agentType, VectorStoresTypes vectorStoreType)

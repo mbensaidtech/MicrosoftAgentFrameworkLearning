@@ -1,0 +1,7 @@
+@AzureOpenAIAgentWithApprovalFunctionTools_HostAddress = http://localhost:5144
+
+GET {{AzureOpenAIAgentWithApprovalFunctionTools_HostAddress}}/api/agents/ask
+Accept: application/json
+
+###
+

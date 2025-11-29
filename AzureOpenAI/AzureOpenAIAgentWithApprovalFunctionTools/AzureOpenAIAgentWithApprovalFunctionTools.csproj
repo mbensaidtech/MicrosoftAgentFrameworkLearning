@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <NoWarn>$(NoWarn);MEAI001</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\AgentConfiguration\AgentConfiguration.csproj" />
+    <ProjectReference Include="..\AzureOpenAIShared\AzureOpenAIShared.csproj" />
+    <ProjectReference Include="..\..\CommonUtilities\CommonUtilities.csproj" />
+  </ItemGroup>
+
+</Project>
+

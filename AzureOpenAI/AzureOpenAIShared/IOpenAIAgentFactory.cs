@@ -1,7 +1,8 @@
 using AgentConfiguration;
 using Microsoft.Agents.AI;
+using Microsoft.Agents.AI.OpenAI;
 using AzureOpenAIShared.Stores;
-
+using Microsoft.Extensions.AI;
 namespace AzureOpenAIShared;
 
 /// <summary>
@@ -17,10 +18,11 @@ public interface IOpenAIAgentFactory
 
     /// <summary>
     /// Creates an advanced AIAgent with instructions and name based on the specified agent type.
+    /// Optionally includes tools and applies function call middleware.
     /// </summary>
-    /// <param name="agentType">The type of agent to create, which determines the configuration to use.</param>
+    /// <param name="request">The request containing agent type and optional tools.</param>
     /// <returns>The created AIAgent.</returns>
-    AIAgent CreateAdvancedAIAgent(AgentType agentType);
+    AIAgent CreateAdvancedAIAgent(CreateAdvancedAIAgentRequest request);
 
     /// <summary>
     /// Creates an AIAgent with a vector store.
